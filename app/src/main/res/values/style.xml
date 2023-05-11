@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:textSize">17sp</item>
+        <item name="android:fontStyle" tools:targetApi="o">normal</item>
+        <item name="android:textStyle">bold</item>
+
+    </style>
+</resources>
