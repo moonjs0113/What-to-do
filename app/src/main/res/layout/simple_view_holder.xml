@@ -4,26 +4,25 @@
     android:layout_height="wrap_content"
     android:background="@drawable/textview_style"
     android:orientation="horizontal"
-    android:layout_margin="5dp"
+    android:layout_margin="10dp"
     >
 
 
     <ImageView
         android:id="@+id/priorityImageView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:src="@drawable/importance_image"
+        android:src="@drawable/baseline_circle_24"
         android:layout_margin="4dp"
-        android:padding="10dp"
-        android:layout_weight="6"
+        android:layout_weight="1"
 
         />
 
     <LinearLayout
         android:id="@+id/touchable_Layout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="7"
         android:layout_margin="1dp"
         android:orientation="vertical"
         >

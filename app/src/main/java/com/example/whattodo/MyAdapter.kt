@@ -48,7 +48,7 @@ class MyAdapter(val items:ArrayList<ToDo>)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        val view : SimpleViewHolderBinding = SimpleViewHolderBinding.inflate(LayoutInflater.from(parent.context)) //////////////////// 4 /////////////////////////
+        val view : SimpleViewHolderBinding = SimpleViewHolderBinding.inflate(LayoutInflater.from(parent.context), parent, false) //////////////////// 4 /////////////////////////
         return MyViewHolder(view)
     }
 

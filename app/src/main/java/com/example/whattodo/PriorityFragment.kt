@@ -30,7 +30,13 @@ class PriorityFragment : Fragment() {
 
     val dataformat = SimpleDateFormat("yyyy-MM-dd")
 
-    var arrayList = arrayListOf<ToDo>(ToDo("example1", dataformat.parse("2023-05-26"), 12f, 5) , ToDo("example2", dataformat.parse("2023-06-01"), 1f, 3))
+    var arrayList = arrayListOf<ToDo>(
+        ToDo("example1", dataformat.parse("2023-05-26"), 12f, 5) ,
+        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4),
+        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3),
+        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2),
+        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1)
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +57,6 @@ class PriorityFragment : Fragment() {
 
         val binding = FragmentPriorityBinding.inflate(inflater, container, false)
         binding.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
-
         adapter  = MyAdapter(arrayList)
         adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
             override fun calculatePriority(
