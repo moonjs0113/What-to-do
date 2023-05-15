@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="clear">#00000000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="pickButtonBackground">#FFF3C1C1</color>
+    <color name="buttonBackground">#FFEAEAEA</color>
+    <color name="strokeColor">#FF79747E</color>
+
 </resources>
+<!--
+Color Value 8자리! -> FF(투명도) + FFFFFF(RGB)
+-->
