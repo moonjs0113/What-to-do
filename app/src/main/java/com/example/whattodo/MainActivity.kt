@@ -23,5 +23,7 @@ class MainActivity : AppCompatActivity() {
             tab.text = textarr[pos]
 //            tab.setIcon(imgarr[pos])
         }.attach()
+
+
     }
 }
