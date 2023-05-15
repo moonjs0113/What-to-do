@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/textview_style"
+    android:orientation="horizontal"
+    android:layout_margin="5dp"
+    >
+
+
+    <ImageView
+        android:id="@+id/priorityImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/importance_image"
+        android:layout_margin="4dp"
+        android:padding="10dp"
+        android:layout_weight="6"
+
+        />
+
+    <LinearLayout
+        android:id="@+id/touchable_Layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_margin="1dp"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/explanation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            android:text="explanation"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:id="@+id/deadLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:padding="5dp"
+                android:layout_weight="1"
+                android:textSize="10dp"
+                android:text="deadLine"
+                />
+
+            <TextView
+                android:id="@+id/importance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:textSize="10dp"
+                android:text="priority"
+                />
+
+            <TextView
+                android:id="@+id/blank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:padding="5dp"
+                android:textSize="10dp"
+                android:text=""
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
