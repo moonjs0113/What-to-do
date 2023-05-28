@@ -16,6 +16,8 @@ import android.graphics.drawable.GradientDrawable as GradientDrawable1
 class MyAdapter(val items:ArrayList<ToDo>)
     : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
+
+
     interface OnItemClickListener{
         fun OnItemClick(position : Int)
         fun OnItemLongClick(position : Int) : Boolean // 꾹 눌렀을 때 반응할 콜백 함수는 Boolean 값을 반환해 줘야 합니다
@@ -32,6 +34,7 @@ class MyAdapter(val items:ArrayList<ToDo>)
 
     var itemClickListener: OnItemClickListener? = null // 그냥 눌렀을 때 반응할 Listener
     var itemLongClickListener : OnItemClickListener? = null // 꾹 눌렀을 때 반응할 Listener
+
     var calculatePriorityListener : OnCalculatePriorityListener? = null // 우선도 정해주는 함수를 외부로 부터 받습니다
 
     inner class MyViewHolder(val binding: SimpleViewHolderBinding) : RecyclerView.ViewHolder(binding.root) //////////////////// 1 /////////////////////////
@@ -63,24 +66,61 @@ class MyAdapter(val items:ArrayList<ToDo>)
 
         // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
         val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
-
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
-        calDateDays = Math.abs(calDateDays)
+
+
         holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
+        // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
+        if(calDateDays < 0) {
+            holder.binding.deadLine.text = "마감 기한 초과"
+        }
+
 
         val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
-
-
         if(priority > 50)
         {
-            holder.binding.priorityImageView.setColorFilter(Color.RED)
-        }else if(priority > 30)
+            var priorityGap = 100 - priority
+            var hex =""
+
+            //만약 우선도가 100이상이면 최대치로, 그 이하면 50과의 간격 차이에 비례 해서 명도가 결정이 된다
+            if(priorityGap < 0)
+            {
+                hex = "FF"
+            }else
+            {
+                hex = Integer.toHexString(((priorityGap / (100 - 50)) * 200 + 56).toInt())
+            }
+
+            if(hex.length == 1)
+            {
+                hex = "0$hex"
+            }
+
+            holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}e03b22"))
+        }else if(priority > 20)
         {
-            holder.binding.priorityImageView.setColorFilter(Color.YELLOW)
+            val priorityGap = priority - 20
+            var hex = Integer.toHexString(((priorityGap / (50 - 20)) * 200 + 56).toInt())
+
+            if(hex.length == 1)
+            {
+                hex = "0$hex"
+            }
+
+            holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}eff238"))
         }else if(priority > 0)
         {
-            holder.binding.priorityImageView.setColorFilter(Color.GREEN)
+            val priorityGap = priority
+            var hex = Integer.toHexString(((priorityGap / (20 - 0)) * 200 + 56).toInt())
+
+            if(hex.length == 1)
+            {
+                hex = "0$hex"
+            }
+
+            holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}24f064"))
+
         }else // 우선도가 음수 -> 마감기한 놓침
         {
             holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)

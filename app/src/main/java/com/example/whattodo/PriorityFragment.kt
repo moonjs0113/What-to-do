@@ -31,7 +31,10 @@ class PriorityFragment : Fragment() {
     val dataformat = SimpleDateFormat("yyyy-MM-dd")
 
     var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", dataformat.parse("2023-05-26"), 12f, 5) ,
+        ToDo("example1", dataformat.parse("2023-05-29"), 12f, 5) ,
+        ToDo("example1-1", dataformat.parse("2023-05-29"), 10f, 9) ,
+        ToDo("example1-2", dataformat.parse("2023-05-30"), 8f, 7) ,
+        ToDo("example1-3", dataformat.parse("2023-05-31"), 4f, 4) ,
         ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4),
         ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3),
         ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2),
