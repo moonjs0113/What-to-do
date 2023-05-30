@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentPriorityBinding
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -28,17 +29,29 @@ class PriorityFragment : Fragment() {
 
     lateinit var adapter: MyAdapter
 
-    val dataformat = SimpleDateFormat("yyyy-MM-dd")
+//    val dataformat = SimpleDateFormat("yyyy-MM-dd")
 
+//    var arrayList = arrayListOf<ToDo>(
+//        ToDo("example1", dataformat.parse("2023-05-29"), 12f, 5 , 0f) ,
+//        ToDo("example1-1", dataformat.parse("2023-05-29"), 10f, 9, 0f) ,
+//        ToDo("example1-2", dataformat.parse("2023-05-30"), 8f, 7, 0f) ,
+//        ToDo("example1-3", dataformat.parse("2023-05-31"), 4f, 4, 0f) ,
+//        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4, 0f),
+//        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3, 0f),
+//        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2, 0f),
+//        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1, 0f)
+//    )
+
+    //LocalDate로 바꾸면서 위 구문을 아래 구문으로 바꿔줬습니다.
     var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", dataformat.parse("2023-05-29"), 12f, 5 , 0f) ,
-        ToDo("example1-1", dataformat.parse("2023-05-29"), 10f, 9, 0f) ,
-        ToDo("example1-2", dataformat.parse("2023-05-30"), 8f, 7, 0f) ,
-        ToDo("example1-3", dataformat.parse("2023-05-31"), 4f, 4, 0f) ,
-        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4, 0f),
-        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3, 0f),
-        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2, 0f),
-        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1, 0f)
+        ToDo("example1", LocalDate.parse("2023-05-29"), 12f, 5 , 0f) ,
+        ToDo("example1-1", LocalDate.parse("2023-05-29"), 10f, 9, 0f) ,
+        ToDo("example1-2", LocalDate.parse("2023-05-30"), 8f, 7, 0f) ,
+        ToDo("example1-3", LocalDate.parse("2023-05-31"), 4f, 4, 0f) ,
+        ToDo("example2", LocalDate.parse("2023-06-01"), 5f, 4, 0f),
+        ToDo("example3", LocalDate.parse("2023-06-04"), 4f, 3, 0f),
+        ToDo("example4", LocalDate.parse("2023-06-15"), 3f, 2, 0f),
+        ToDo("example5", LocalDate.parse("2023-06-30"), 1f, 1, 0f)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,7 +91,9 @@ class PriorityFragment : Fragment() {
                 _timeLeft: Long,
                 _time_taken: Float
             ): Float {
-                val timeLeft = (_timeLeft / (60 * 60 * 1000)).toInt() // 남은 시간
+                //넘어오는 값이 초에서 일수로 변경되면서 구문 수정했습니다.
+//                val timeLeft = (_timeLeft / (60 * 60 * 1000)).toInt() // 남은 시간
+                val timeLeft = _timeLeft.toInt() // 남은 시간
                 var spareTime = timeLeft - _time_taken
 
                 if(timeLeft < 0)

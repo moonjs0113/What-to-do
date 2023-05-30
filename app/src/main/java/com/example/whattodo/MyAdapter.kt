@@ -1,14 +1,14 @@
 package com.example.whattodo
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whattodo.databinding.SimpleViewHolderBinding
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.Comparator
-import android.graphics.drawable.GradientDrawable as GradientDrawable1
 
 // 확장성 기능 1 : recyclerView의 우선도 색깔을 바꾸고 싶은 경우에는 adapter.setPriorityColor()로 설정 해 주세요
 
@@ -19,8 +19,9 @@ import android.graphics.drawable.GradientDrawable as GradientDrawable1
 // 확장성 기능 3 : recyclerView의 클락 시의 행동을 바꾸고 싶은 경우에는 adapter.itemClickListener = object : 형식으로 OnItemClickListener 익명 객체를 넣어주세요
 // 확장성 기능 4 : recyclerView의 긴 클릭 시의 행동을 바꾸고 싶은 경우에는 adapter.itemLongClickListener = object : 형식으로 OnLongItemClickListener 익명 객체를 넣어주세요
 
-class MyAdapter(val items:ArrayList<ToDo>)
+class MyAdapter(var items:ArrayList<ToDo>)
     : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
+
 
     //각각 빨간색, 노란색, 초록색을 담고 있습니다
     // 만약 색깔을 바꾸고 싶다면 이 arrayList 의 값을 바꿔주면 그 색깔이 반영이 됩니다
@@ -130,10 +131,13 @@ class MyAdapter(val items:ArrayList<ToDo>)
         holder.binding.explanation.text = items[position].explanation
         holder.binding.importance.text = "중요도: " + items[position].importance.toString()
 
-        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
-        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
-        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
-        var calDateDays = calDate / (24 * 60 * 60 * 1000)
+//        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
+//        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
+//        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+//        var calDateDays = calDate / (24 * 60 * 60 * 1000)
+
+        //LocalDate로 바꾸면서 위 구문이 수정이 필요해졌습니다. getTime 함수 같은것이 없음
+        val calDateDays = ChronoUnit.DAYS.between(LocalDate.now(), items[position].deadLine)
 
 
         holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
@@ -142,8 +146,10 @@ class MyAdapter(val items:ArrayList<ToDo>)
             holder.binding.deadLine.text = "마감 기한 초과"
         }
 
-
-        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
+        // 아래 구문도 차이나는 시간을 초가 아닌 일수로 전달하는 것으로 바꿨습니다.
+        //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
+//        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
+        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDateDays, items[position].time_taken)!!
         items[position].priority = priority
 
         if(priority > 50)
