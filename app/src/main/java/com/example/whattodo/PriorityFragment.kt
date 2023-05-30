@@ -31,11 +31,14 @@ class PriorityFragment : Fragment() {
     val dataformat = SimpleDateFormat("yyyy-MM-dd")
 
     var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", dataformat.parse("2023-05-26"), 12f, 5) ,
-        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4),
-        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3),
-        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2),
-        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1)
+        ToDo("example1", dataformat.parse("2023-05-29"), 12f, 5 , 0f) ,
+        ToDo("example1-1", dataformat.parse("2023-05-29"), 10f, 9, 0f) ,
+        ToDo("example1-2", dataformat.parse("2023-05-30"), 8f, 7, 0f) ,
+        ToDo("example1-3", dataformat.parse("2023-05-31"), 4f, 4, 0f) ,
+        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4, 0f),
+        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3, 0f),
+        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2, 0f),
+        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1, 0f)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,12 +55,23 @@ class PriorityFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_priority, container, false)
+
 
         val binding = FragmentPriorityBinding.inflate(inflater, container, false)
         binding.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
         adapter  = MyAdapter(arrayList)
+
+        adapter.itemClickListener = object : MyAdapter.OnItemClickListener{
+            override fun OnItemClick(position: Int) {
+                adapter.setPriorityColor("2f22e0", "ca22e0", "db184f")
+                adapter.sortItemwithAscendingPriority()
+            }
+
+        }
+
         adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
             override fun calculatePriority(
                 _importance: Int,
