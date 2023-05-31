@@ -58,33 +58,33 @@ class MyAdapter(val items:ArrayList<ToDo>)
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) { //////////////////// 5 /////////////////////////
-        holder.binding.explanation.text = items[position].explanation
-        holder.binding.importance.text = "중요도: " + items[position].importance.toString()
-
-        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
-        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
-
-        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
-        var calDateDays = calDate / (24 * 60 * 60 * 1000)
-        calDateDays = Math.abs(calDateDays)
-        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
-
-        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
-
-
-        if(priority > 50)
-        {
-            holder.binding.priorityImageView.setColorFilter(Color.RED)
-        }else if(priority > 30)
-        {
-            holder.binding.priorityImageView.setColorFilter(Color.YELLOW)
-        }else if(priority > 0)
-        {
-            holder.binding.priorityImageView.setColorFilter(Color.GREEN)
-        }else // 우선도가 음수 -> 마감기한 놓침
-        {
-            holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)
-        }
+//        holder.binding.explanation.text = items[position].explanation
+//        holder.binding.importance.text = "중요도: " + items[position].importance.toString()
+//
+//        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
+//        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
+//
+//        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+//        var calDateDays = calDate / (24 * 60 * 60 * 1000)
+//        calDateDays = Math.abs(calDateDays)
+//        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
+//
+//        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
+//
+//
+//        if(priority > 50)
+//        {
+//            holder.binding.priorityImageView.setColorFilter(Color.RED)
+//        }else if(priority > 30)
+//        {
+//            holder.binding.priorityImageView.setColorFilter(Color.YELLOW)
+//        }else if(priority > 0)
+//        {
+//            holder.binding.priorityImageView.setColorFilter(Color.GREEN)
+//        }else // 우선도가 음수 -> 마감기한 놓침
+//        {
+//            holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)
+//        }
 
 
         //////////////////// 5 /////////////////////////
