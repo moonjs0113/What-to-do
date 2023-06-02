@@ -31,14 +31,14 @@ class PriorityFragment : Fragment() {
     val dataformat = SimpleDateFormat("yyyy-MM-dd")
 
     var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", dataformat.parse("2023-05-29"), 12f, 5 , 0f) ,
-        ToDo("example1-1", dataformat.parse("2023-05-29"), 10f, 9, 0f) ,
-        ToDo("example1-2", dataformat.parse("2023-05-30"), 8f, 7, 0f) ,
-        ToDo("example1-3", dataformat.parse("2023-05-31"), 4f, 4, 0f) ,
-        ToDo("example2", dataformat.parse("2023-06-01"), 5f, 4, 0f),
-        ToDo("example3", dataformat.parse("2023-06-04"), 4f, 3, 0f),
-        ToDo("example4", dataformat.parse("2023-06-15"), 3f, 2, 0f),
-        ToDo("example5", dataformat.parse("2023-06-30"), 1f, 1, 0f)
+        ToDo("example1", "2023-05-29", 12f, 5 , 0f) ,
+        ToDo("example1-1", "2023-05-29", 10f, 9, 0f) ,
+        ToDo("example1-2", "2023-05-30", 8f, 7, 0f) ,
+        ToDo("example1-3", "2023-05-31", 4f, 4, 0f) ,
+        ToDo("example2", "2023-06-01", 5f, 4, 0f),
+        ToDo("example3", "2023-06-04", 4f, 3, 0f),
+        ToDo("example4", "2023-06-15", 3f, 2, 0f),
+        ToDo("example5", "2023-06-30", 1f, 1, 0f)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

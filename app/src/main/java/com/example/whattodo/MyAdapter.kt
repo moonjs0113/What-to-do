@@ -1,14 +1,13 @@
 package com.example.whattodo
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whattodo.databinding.SimpleViewHolderBinding
+import com.example.whattodo.manager.Persistence.toDate
 import java.util.*
 import kotlin.Comparator
-import android.graphics.drawable.GradientDrawable as GradientDrawable1
 
 // 확장성 기능 1 : recyclerView의 우선도 색깔을 바꾸고 싶은 경우에는 adapter.setPriorityColor()로 설정 해 주세요
 
@@ -131,7 +130,7 @@ class MyAdapter(val items:ArrayList<ToDo>)
         holder.binding.importance.text = "중요도: " + items[position].importance.toString()
 
         // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
-        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
+        val calDate: Long = items[position].deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
