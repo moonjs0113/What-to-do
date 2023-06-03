@@ -18,6 +18,7 @@ class PersistenceService {
     // Room
     fun registerContext(context: Context) {
         roomManager.registerContext(context)
+
     }
 
     fun getAllTodo(context: Context): ArrayList<ToDo> {
