@@ -9,9 +9,11 @@ import android.os.Bundle
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import java.time.LocalDateTime
 import java.util.*
@@ -19,8 +21,9 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     val textarr = arrayListOf<String>("우선도", "마감일", "검색", "환경설정")
-    var dateTime = LocalDateTime.now()
-    var timeToSpendVal = 1;
+    var deadline = LocalDateTime.now()
+    var timeToSpendVal = 1
+    var importanceVal = 5
 
     var isInputFormOpen = false;
 
@@ -43,14 +46,14 @@ class MainActivity : AppCompatActivity() {
 
         binding.apply {
 
-            datePickedText.setText("${dateTime.year}년 ${dateTime.monthValue}월 ${dateTime.dayOfMonth}일 ${dateTime.hour}시 ${dateTime.minute}분")
+            datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             var bottomBarHeight = 0
             val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
             if (resourceId > 0) {
                 bottomBarHeight = resources.getDimensionPixelSize(resourceId)
             }
             println(bottomBarHeight)
-            val animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 600)
+            val animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
             animator.interpolator = AccelerateDecelerateInterpolator()
 
             animator.addUpdateListener { animation ->
@@ -99,6 +102,36 @@ class MainActivity : AppCompatActivity() {
             timeToSpend.setOnClickListener {
                 setTimeToSpend()
             }
+            seekBar.progress = importanceVal
+            seekBar.max = 10
+            seekBar.setOnSeekBarChangeListener(
+                object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        importanceVal = progress
+                        importance.setText("$importanceVal/10")
+                    }
+
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    }
+                }
+            )
+
+            registerBtn.setOnClickListener {
+                if(todoInput.text.isEmpty()) {
+                    var snackbar = Snackbar.make(binding.root, "일정 이름을 입력해주세요.", Snackbar.LENGTH_LONG)
+                    snackbar.show()
+                }
+                if(deadline.isBefore(LocalDateTime.now())) {
+                    var snackbar = Snackbar.make(binding.root, "마감일이 현재 시간 이전입니다.", Snackbar.LENGTH_LONG)
+                    snackbar.show()
+                }
+                var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
+                println(newToDo)
+                // Room에 ToDo객체 저장
+            }
         }
     }
 
@@ -129,14 +162,14 @@ class MainActivity : AppCompatActivity() {
     fun setDeadline() {
         val cal = Calendar.getInstance()
         val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-            dateTime =  dateTime.withYear(year)
-            dateTime =  dateTime.withMonth(month + 1)
-            dateTime =  dateTime.withDayOfMonth(dayOfMonth)
-            binding.datePickedText.setText("${dateTime.year}년 ${dateTime.monthValue}월 ${dateTime.dayOfMonth}일 ${dateTime.hour}시 ${dateTime.minute}분")
+            deadline =  deadline.withYear(year)
+            deadline =  deadline.withMonth(month + 1)
+            deadline =  deadline.withDayOfMonth(dayOfMonth)
+            binding.datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             val timeSetListener = TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
-                dateTime =  dateTime.withHour(hourOfDay)
-                dateTime =  dateTime.withMinute(minute)
-                binding.datePickedText.setText("${dateTime.year}년 ${dateTime.monthValue}월 ${dateTime.dayOfMonth}일 ${dateTime.hour}시 ${dateTime.minute}분")
+                deadline =  deadline.withHour(hourOfDay)
+                deadline =  deadline.withMinute(minute)
+                binding.datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             }
             TimePickerDialog(this@MainActivity, R.style.MyDatePickerStyle, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE),true).show()
         }
