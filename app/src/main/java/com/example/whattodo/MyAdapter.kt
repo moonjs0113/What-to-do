@@ -5,8 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whattodo.databinding.SimpleViewHolderBinding
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import com.example.whattodo.manager.Persistence.toDate
 import java.util.*
 import kotlin.Comparator
 
@@ -131,14 +130,13 @@ class MyAdapter(var items:ArrayList<ToDo>)
         holder.binding.explanation.text = items[position].explanation
         holder.binding.importance.text = "중요도: " + items[position].importance.toString()
 
-//        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
-//        val calDate: Long = items[position].deadLine.getTime() - Date(System.currentTimeMillis()).getTime()
-//        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
-//        var calDateDays = calDate / (24 * 60 * 60 * 1000)
+        // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
+        val calDate: Long = items[position].deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
+        // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+        var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
         //LocalDate로 바꾸면서 위 구문이 수정이 필요해졌습니다. getTime 함수 같은것이 없음
-        val calDateDays = ChronoUnit.DAYS.between(LocalDate.now(), items[position].deadLine)
-
+//        val calDateDays = ChronoUnit.DAYS.between(LocalDate.now(), items[position].deadLine)
 
         holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
         // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
@@ -199,9 +197,6 @@ class MyAdapter(var items:ArrayList<ToDo>)
         {
             holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)
         }
-
-
-
     }
 
 }

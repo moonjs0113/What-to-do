@@ -43,16 +43,7 @@ class PriorityFragment : Fragment() {
 //    )
 
     //LocalDate로 바꾸면서 위 구문을 아래 구문으로 바꿔줬습니다.
-    var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", LocalDate.parse("2023-05-29"), 12f, 5 , 0f) ,
-        ToDo("example1-1", LocalDate.parse("2023-05-29"), 10f, 9, 0f) ,
-        ToDo("example1-2", LocalDate.parse("2023-05-30"), 8f, 7, 0f) ,
-        ToDo("example1-3", LocalDate.parse("2023-05-31"), 4f, 4, 0f) ,
-        ToDo("example2", LocalDate.parse("2023-06-01"), 5f, 4, 0f),
-        ToDo("example3", LocalDate.parse("2023-06-04"), 4f, 3, 0f),
-        ToDo("example4", LocalDate.parse("2023-06-15"), 3f, 2, 0f),
-        ToDo("example5", LocalDate.parse("2023-06-30"), 1f, 1, 0f)
-    )
+    var arrayList = ToDo.previewData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

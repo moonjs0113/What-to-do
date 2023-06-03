@@ -8,31 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentDeadlineBinding
+import com.example.whattodo.manager.Persistence.toLocalDateTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class DeadlineFragment : Fragment() {
     var binding:FragmentDeadlineBinding?=null
     var adapter: MyAdapter = MyAdapter(ArrayList<ToDo>())
 
     //선택된 날짜 데이터 초기값은 오늘날짜
-    var seletecdDate:LocalDate = LocalDate.now()
+    var seletecdDate: LocalDateTime = LocalDateTime.now()
 
     //아래에 데이터가 저장되어 있다고 가정함
     //최종 단계에선 DB에서 끌어오는 방식으로 처리 해야함
-    var arrayList = arrayListOf<ToDo>(
-        ToDo("example1", LocalDate.parse("2023-05-29"), 12f, 5 , 0f) ,
-        ToDo("example1-1", LocalDate.parse("2023-05-29"), 10f, 9, 0f) ,
-        ToDo("example1-2", LocalDate.parse("2023-05-30"), 8f, 7, 0f) ,
-        ToDo("example1-3", LocalDate.parse("2023-05-31"), 4f, 4, 0f) ,
-        ToDo("example2", LocalDate.parse("2023-06-01"), 5f, 4, 0f),
-        ToDo("example2", LocalDate.parse("2023-06-01"), 5f, 3, 0f),
-        ToDo("example2", LocalDate.parse("2023-06-01"), 3f, 5, 0f),
-        ToDo("example2", LocalDate.parse("2023-06-01"), 3f, 2, 0f),
-        ToDo("example2", LocalDate.parse("2023-06-01"), 5f, 1, 0f),
-        ToDo("example3", LocalDate.parse("2023-06-04"), 4f, 3, 0f),
-        ToDo("example4", LocalDate.parse("2023-06-15"), 3f, 2, 0f),
-        ToDo("example5", LocalDate.parse("2023-06-30"), 1f, 1, 0f)
-    )
+    var arrayList = ToDo.previewData
 
     //설정된 날짜로 필터링된 리스트
     val fliteredList = arrayListOf<ToDo>()
@@ -45,7 +34,7 @@ class DeadlineFragment : Fragment() {
 
         //달력 날짜 변경 이벤트 처리
         binding!!.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            seletecdDate = LocalDate.of(year, month+1, dayOfMonth)
+            seletecdDate = LocalDateTime.of(year, month+1, dayOfMonth, 0,0)
             Log.i("seletecDate", seletecdDate.toString())
 
             filterListByDate()
@@ -97,7 +86,7 @@ class DeadlineFragment : Fragment() {
     private fun filterListByDate() {
         fliteredList.clear()
         for(item in arrayList){
-            if(item.deadLine.isEqual(seletecdDate)){
+            if(item.deadLine.toLocalDateTime().isEqual(seletecdDate)){
                 fliteredList.add(item)
             }
         }
