@@ -86,7 +86,8 @@ class DeadlineFragment : Fragment() {
     private fun filterListByDate() {
         fliteredList.clear()
         for(item in arrayList){
-            if(item.deadLine.toLocalDateTime().isEqual(seletecdDate)){
+            Log.i("item.deadLine.toLocalDateTime().toLocalDate()", item.deadLine.toLocalDateTime().toLocalDate().toString())
+            if(item.deadLine.toLocalDateTime().toLocalDate().isEqual(seletecdDate.toLocalDate())){
                 fliteredList.add(item)
             }
         }
