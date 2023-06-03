@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="10"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:background="@color/white"
             android:id="@+id/viewPager"/>
 
@@ -69,6 +69,7 @@
                 android:paddingHorizontal="20dp"
                 android:orientation="horizontal">
                 <Button
+                    android:id="@+id/datePickedButton"
                     android:layout_width="0dp"
                     android:layout_marginRight="20dp"
                     android:layout_weight="2"
@@ -95,6 +96,7 @@
                 android:paddingHorizontal="20dp"
                 android:orientation="horizontal">
                 <Button
+                    android:id="@+id/timeToSpendButton"
                     android:layout_width="0dp"
                     android:layout_marginRight="20dp"
                     android:layout_weight="2"
@@ -120,6 +122,7 @@
                 android:paddingHorizontal="20dp"
                 android:orientation="horizontal">
                 <Button
+                    android:id="@+id/importanceButton"
                     android:layout_width="0dp"
                     android:layout_marginRight="20dp"
                     android:layout_weight="2"
