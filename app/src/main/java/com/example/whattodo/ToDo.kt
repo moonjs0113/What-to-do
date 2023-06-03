@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
 @Entity(tableName = "todos")
@@ -28,7 +29,10 @@ data class ToDo (
         private val dataformat = SimpleDateFormat("yyyy-MM-dd")
         public var previewData =
             arrayListOf<ToDo>(
-                ToDo("example1", "2023-05-26", 12f, 5, 2.0f),
+                ToDo("example1", "2023-05-29", 12f, 5 , 0f) ,
+                ToDo("example1-1", "2023-05-29", 10f, 9, 0f) ,
+                ToDo("example1-2", "2023-05-30", 8f, 7, 0f) ,
+                ToDo("example1-3", "2023-05-31", 4f, 4, 0f) ,
                 ToDo("example2", "2023-06-01", 5f, 4, 5.0f),
                 ToDo("example3", "2023-06-04", 4f, 3, 3.0f),
                 ToDo("example4", "2023-06-15", 3f, 2,4.0f),
@@ -36,7 +40,6 @@ data class ToDo (
             )
     }
 }
-
 // explanation : 할 일에 대한 설명
 // deadLine : 마감일
 // time_taken : 소요 시간

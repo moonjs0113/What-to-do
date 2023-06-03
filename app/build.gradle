@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.whattodo"
-        minSdk 30
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -31,6 +31,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+//        //LocalDate 사용하려고 넣었습니다. Java8 API를 사용할 수 있도록 하는 기능이라고 하네요.
+//        //이거 아니면 SDK min 26 이상으로 바꿔줘야 합니다.
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -49,4 +52,5 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.5.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
 }
