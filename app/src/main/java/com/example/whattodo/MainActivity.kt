@@ -6,15 +6,23 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.room.Room
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
+import com.example.whattodo.manager.room.ToDoDAO
+import com.example.whattodo.manager.room.ToDoDatabase
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -131,6 +139,26 @@ class MainActivity : AppCompatActivity() {
                 var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
                 println(newToDo)
                 // Room에 ToDo객체 저장
+
+                val db = Room.databaseBuilder(this@MainActivity, ToDoDatabase::class.java, "todoDB").build()
+                CoroutineScope(Dispatchers.IO).launch {
+                    var todoDao = db.toDoDAO()
+                    todoDao.insertToDo(newToDo)
+                    var toDoList = todoDao.getAllTodo()
+                    println(toDoList)
+                }
+                // 저장 성공 후 초기화
+                todoInput.text.clear()
+                deadline = LocalDateTime.now()
+                datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
+                timeToSpendVal = 1
+                timeToSpend.setText("${timeToSpendVal}시간")
+                importanceVal = 5
+                importance.setText("$importanceVal/10")
+                seekBar.progress = 5
+
+
+
             }
         }
     }
