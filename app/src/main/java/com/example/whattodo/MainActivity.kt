@@ -6,23 +6,18 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.room.Room
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
-import com.example.whattodo.manager.room.ToDoDAO
-import com.example.whattodo.manager.room.ToDoDatabase
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     var importanceVal = 5
 
     var isInputFormOpen = false;
+
 
     //    val imgarr = arrayListOf<Int>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,14 +135,13 @@ class MainActivity : AppCompatActivity() {
                 var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
                 println(newToDo)
                 // Room에 ToDo객체 저장
-
-                val db = Room.databaseBuilder(this@MainActivity, ToDoDatabase::class.java, "todoDB").build()
                 CoroutineScope(Dispatchers.IO).launch {
-                    var todoDao = db.toDoDAO()
-                    todoDao.insertToDo(newToDo)
-                    var toDoList = todoDao.getAllTodo()
-                    println(toDoList)
+                    PersistenceService.share.registerContext(this@MainActivity)
+                    PersistenceService.share.insertTodo(newToDo)
+                    var list = PersistenceService.share.getAllTodo(this@MainActivity)
+                    println(list.size)
                 }
+
                 // 저장 성공 후 초기화
                 todoInput.text.clear()
                 deadline = LocalDateTime.now()
