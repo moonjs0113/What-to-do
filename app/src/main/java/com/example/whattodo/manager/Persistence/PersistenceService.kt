@@ -39,6 +39,6 @@ class PersistenceService {
 
     /// Context에서 호출하여 테스트해볼 수 있습니다. 테스트 결과는 Logcat을 통해 확인할 수 있습니다.
     fun testRoomManager(context: Context) {
-        roomManager.test(context)
+//        roomManager.test(context)
     }
 }
