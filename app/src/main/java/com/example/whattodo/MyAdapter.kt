@@ -7,6 +7,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.whattodo.databinding.SimpleViewHolderBinding
 import com.example.whattodo.manager.Persistence.toDate
+import com.example.whattodo.manager.Persistence.toLocalDateTime
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 import kotlin.Comparator
 
@@ -88,13 +92,34 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
     fun CalcItemsPrority()
     {
+        for(item in items){
+            Log.d("데드라인", item.deadLine)
+
+        }
+        val currentTime = LocalDateTime.now()
         for(item in items)
         {
-            val calDate: Long = item.deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
-            // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
-            var calDateDays = calDate / (24 * 60 * 60 * 1000)
-            val priority : Float =  calculatePriorityListener?.calculatePriority(item.importance , calDateDays, item.time_taken / 24)!!
-            item.priority = priority
+//            val calDate: Long = item.deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
+//            // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+//            var calDateDays = calDate / (24 * 60 * 60 * 1000)
+//            val priority : Float =  calculatePriorityListener?.calculatePriority(item.importance , calDateDays, item.time_taken / 24)!!
+//            item.priority = priority
+
+            //새로운 우선도 계산 방식입니다.
+            val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                duration.toHours().toFloat()
+            } else {
+                -1.0f
+            }
+
+            val urgencyFactor = item.time_taken / remainingTime * 100
+            val priorityScore = urgencyFactor * item.importance
+            Log.d("우선도", priorityScore.toFloat().toString())
+            item.priority = priorityScore.toFloat()
+
         }
     }
 
@@ -178,13 +203,16 @@ class MyAdapter(var items:ArrayList<ToDo>)
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.binding.explanation.text = items[position].explanation
         holder.binding.importance.text = "중요도: " + items[position].importance.toString()
+        holder.binding.deadLineDate.text = items[position].deadLine.substring(5,10)
+        holder.binding.timeTaken.text = "소요시간: " + items[position].time_taken.toString()
 
         // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
         val calDate: Long = items[position].deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
-        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
+//        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
+        holder.binding.deadLine.text = calDateDays.toString() + "일 전"
         // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
         if(calDateDays < 0) {
             holder.binding.deadLine.text = "마감 기한 초과"
@@ -217,10 +245,10 @@ class MyAdapter(var items:ArrayList<ToDo>)
             }
 
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[0]}"))
-        }else if(priority > 20)
+        }else if(priority > 10)
         {
             val priorityGap = priority - 20
-            var hex = Integer.toHexString(((priorityGap / (50 - 20)) * 200 + 56).toInt())
+            var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 200 + 56).toInt())
 
             if(hex.length == 1)
             {
@@ -231,7 +259,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
         }else if(priority > 0)
         {
             val priorityGap = priority
-            var hex = Integer.toHexString(((priorityGap / (20 - 0)) * 200 + 56).toInt())
+            var hex = Integer.toHexString(((priorityGap / (10 - 0)) * 200 + 56).toInt())
 
             if(hex.length == 1)
             {

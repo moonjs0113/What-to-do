@@ -27,14 +27,14 @@ data class ToDo(
         private val dataformat = SimpleDateFormat("yyyy-MM-dd")
         public var previewData =
             arrayListOf<ToDo>(
-                ToDo("example1", "2023-06-29", 12f, 5 , 0f) ,
-                ToDo("example1-1", "2023-06-29", 10f, 9, 0f) ,
-                ToDo("example1-2", "2023-06-30", 8f, 7, 0f) ,
-                ToDo("example1-3", "2023-07-31", 4f, 4, 0f) ,
-                ToDo("example2", "2023-07-01", 5f, 4, 5.0f),
-                ToDo("example3", "2023-07-04", 4f, 3, 3.0f),
-                ToDo("example4", "2023-07-15", 3f, 2,4.0f),
-                ToDo("example5", "2023-07-30", 1f, 1,4.0f)
+                ToDo("example1", "2023-06-29T00:00", 12f, 5 , 0f) ,
+                ToDo("example1-1", "2023-06-29T00:00", 10f, 9, 0f) ,
+                ToDo("example1-2", "2023-06-30T00:00", 8f, 7, 0f) ,
+                ToDo("example1-3", "2023-07-31T00:00", 4f, 4, 0f) ,
+                ToDo("example2", "2023-07-01T00:00", 5f, 4, 5.0f),
+                ToDo("example3", "2023-07-04T00:00", 4f, 3, 3.0f),
+                ToDo("example4", "2023-07-15T00:00", 3f, 2,4.0f),
+                ToDo("example5", "2023-07-30T00:00", 1f, 1,4.0f)
             )
     }
 }
