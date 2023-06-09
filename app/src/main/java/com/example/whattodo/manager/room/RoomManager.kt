@@ -12,6 +12,7 @@ class RoomManager {
     /// Activity or Fragment가 변경될 때 호출하여 Context정보를 교체합니다.
     fun registerContext(context: Context) {
         this.context = context
+        Log.d("RoomManager registerContext", "RoomManager registerContext")
         todoDB = ToDoDatabase.getDatabase(context)
     }
 
