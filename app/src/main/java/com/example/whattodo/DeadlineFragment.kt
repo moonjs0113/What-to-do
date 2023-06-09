@@ -28,8 +28,6 @@ class DeadlineFragment : Fragment() {
     //선택된 날짜 데이터 초기값은 오늘날짜
     var seletecdDate: LocalDateTime = LocalDateTime.now()
 
-    //아래에 데이터가 저장되어 있다고 가정함
-    //최종 단계에선 DB에서 끌어오는 방식으로 처리 해야함
     lateinit var mainActivity: MainActivity
 
     lateinit var broadcastReceiver: BroadcastReceiver
@@ -90,6 +88,16 @@ class DeadlineFragment : Fragment() {
             Log.i("seletecDate", seletecdDate.toString())
 
             filterListByDate()
+
+//            CoroutineScope(Dispatchers.IO).launch {
+//                var arrayList = PersistenceService.share.getAllTodo(requireContext())
+//                for(list in arrayList){
+//                    PersistenceService.share.deleteTodo(list)
+//                }
+//                for (i in ToDo.previewData){
+//                    PersistenceService.share.insertTodo(i)
+//                }
+//            }
         }
 
         //리스트 내의 아이템 클릭시 이벤트 처리
