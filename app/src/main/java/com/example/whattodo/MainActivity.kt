@@ -30,6 +30,11 @@ class MainActivity : AppCompatActivity() {
     var timeToSpendVal = 1
     var importanceVal = 5
 
+    // 수정인지 등록인지 표시하는 플래그
+    var isAmend = false
+    // 수정할 객체 id
+    var idToAmend = 0
+
     var isInputFormOpen = false;
 
 
@@ -126,24 +131,33 @@ class MainActivity : AppCompatActivity() {
             )
 
             registerBtn.setOnClickListener {
-                if(todoInput.text.isEmpty()) {
+                if(todoInput.text.isEmpty() && !isAmend) {
                     var snackbar = Snackbar.make(binding.root, "일정 이름을 입력해주세요.", Snackbar.LENGTH_LONG)
                     snackbar.show()
+                    return@setOnClickListener
                 }
-                if(deadline.isBefore(LocalDateTime.now())) {
+                if(deadline.isBefore(LocalDateTime.now()) && !isAmend) {
                     var snackbar = Snackbar.make(binding.root, "마감일이 현재 시간 이전입니다.", Snackbar.LENGTH_LONG)
                     snackbar.show()
+                    return@setOnClickListener
                 }
                 var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
-
+                newToDo.id = idToAmend
                 println(newToDo)
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
                     PersistenceService.share.registerContext(this@MainActivity)
-                    PersistenceService.share.insertTodo(newToDo)
-                    var list = PersistenceService.share.getAllTodo(this@MainActivity)
-                    println(list.size)
+                    // 수정 모드인 경우
+                    if(isAmend) {
+                        PersistenceService.share.updateTodo(newToDo)
+                        // 수정 끝
+                        isAmend = false
+                        registerBtn.text = "등록"
+                    } else {
+                        PersistenceService.share.insertTodo(newToDo)
+                    }
                 }
+
 
                 val intent = Intent(Intent.ACTION_SEND);
                 intent.putExtra("message","dataChanged");
@@ -158,7 +172,6 @@ class MainActivity : AppCompatActivity() {
                 importanceVal = 5
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
-
             }
         }
     }
