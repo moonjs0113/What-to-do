@@ -11,7 +11,7 @@ fun String.toDate(): Date {
 }
 
 fun String.toLocalDateTime(): LocalDateTime {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
     return LocalDateTime.parse(this, formatter)
 }
 

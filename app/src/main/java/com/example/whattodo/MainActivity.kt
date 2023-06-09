@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import com.example.whattodo.ToDo.Companion.previewData
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
 import com.google.android.material.snackbar.Snackbar
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         PersistenceService.share.testRoomManager(this)
         layoutInit()
+
+
     }
 
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity() {
                     var snackbar = Snackbar.make(binding.root, "마감일이 현재 시간 이전입니다.", Snackbar.LENGTH_LONG)
                     snackbar.show()
                 }
-                var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
+                var newToDo = ToDo(todoInput.text.toString(), deadline.toString().substring(0, 16), timeToSpendVal.toFloat(), importanceVal, 5f)
                 println(newToDo)
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
