@@ -1,6 +1,7 @@
 package com.example.whattodo
 
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -73,8 +74,28 @@ class MyAdapter(var items:ArrayList<ToDo>)
             }
 
         }
+
         items.sortWith(comparator)
+
+
+        for(item in items)
+        {
+            Log.d("list", item.toString())
+        }
+
         notifyDataSetChanged()
+    }
+
+    fun CalcItemsPrority()
+    {
+        for(item in items)
+        {
+            val calDate: Long = item.deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
+            // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+            var calDateDays = calDate / (24 * 60 * 60 * 1000)
+            val priority : Float =  calculatePriorityListener?.calculatePriority(item.importance , calDateDays, item.time_taken / 24)!!
+            item.priority = priority
+        }
     }
 
 
@@ -98,10 +119,38 @@ class MyAdapter(var items:ArrayList<ToDo>)
         // 최종 우선도를 float으로 반환합니다
     }
 
-    var itemClickListener: OnItemClickListener? = null // 그냥 눌렀을 때 반응할 Listener
+    var itemClickListener: OnItemClickListener? = object : MyAdapter.OnItemClickListener{
+        override fun OnItemClick(position: Int) {
+            sortItemwithDescendingPriority()
+        }
+
+    }
     var itemLongClickListener : OnLongItemClickListener? = null // 꾹 눌렀을 때 반응할 Listener
 
-    var calculatePriorityListener : OnCalculatePriorityListener? = null // 우선도 정해주는 함수를 외부로 부터 받습니다
+    var calculatePriorityListener : OnCalculatePriorityListener? = object : MyAdapter.OnCalculatePriorityListener{
+        override fun calculatePriority(
+            _importance: Int,
+            _timeLeft: Long,
+            _time_taken: Float
+        ): Float {
+            //넘어오는 값이 초에서 일수로 변경되면서 구문 수정했습니다.
+//                val timeLeft = (_timeLeft / (60 * 60 * 1000)).toInt() // 남은 시간
+            val timeLeft = _timeLeft.toInt() // 남은 시간
+            var spareTime = timeLeft - _time_taken
+
+            if(timeLeft < 0)
+            {
+                return -1.0f // 아예 기간이 지나면 음수를 반환함
+            }
+
+            if(spareTime < 0) // 만약 남은 시간 보다 소요 시간이 더 걸리면
+            {
+                spareTime = 0.001f // 극단적으로 줄여서 우선도 상에서 매우 높은 비중을 가지게 해준다
+            }
+
+            return 100 / spareTime + _importance * 5
+        }
+    }
 
     inner class MyViewHolder(val binding: SimpleViewHolderBinding) : RecyclerView.ViewHolder(binding.root)
     {  
@@ -135,9 +184,6 @@ class MyAdapter(var items:ArrayList<ToDo>)
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
-        //LocalDate로 바꾸면서 위 구문이 수정이 필요해졌습니다. getTime 함수 같은것이 없음
-//        val calDateDays = ChronoUnit.DAYS.between(LocalDate.now(), items[position].deadLine)
-
         holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
         // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
         if(calDateDays < 0) {
@@ -146,9 +192,10 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
         // 아래 구문도 차이나는 시간을 초가 아닌 일수로 전달하는 것으로 바꿨습니다.
         //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
-//        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDate, items[position].time_taken)!!
-        val priority : Float =  calculatePriorityListener?.calculatePriority(items[position].importance , calDateDays, items[position].time_taken)!!
-        items[position].priority = priority
+        val priority : Float = items[position].priority
+
+        Log.d( "Proriri", items[position].explanation.toString() + " " + priority.toString())
+
 
         if(priority > 50)
         {
