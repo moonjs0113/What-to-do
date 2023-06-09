@@ -51,6 +51,7 @@ class DeadlineFragment : Fragment() {
                             adapter.items = PersistenceService.share.getAllTodo(mainActivity)
                             withContext(Dispatchers.Main)
                             {
+                                adapter.CalcItemsPrority()
                                 adapter.notifyDataSetChanged()
                             }
                         }
@@ -102,30 +103,6 @@ class DeadlineFragment : Fragment() {
         binding!!.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
         binding!!.prioirtyRecyclerView.adapter = this@DeadlineFragment.adapter
 
-        //우선도 세팅
-        adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
-            override fun calculatePriority(
-                _importance: Int,
-                _timeLeft: Long,
-                _time_taken: Float
-            ): Float {
-                val timeLeft = _timeLeft.toInt() // 남은 시간
-                var spareTime = timeLeft - _time_taken
-
-                if(timeLeft < 0)
-                {
-                    return -1.0f // 아예 기간이 지나면 음수를 반환함
-                }
-
-                if(spareTime < 0) // 만약 남은 시간 보다 소요 시간이 더 걸리면
-                {
-                    spareTime = 0.001f // 극단적으로 줄여서 우선도 상에서 매우 높은 비중을 가지게 해준다
-                }
-
-                return 1 / spareTime + _importance * 10
-            }
-        }
-
         //시작하면서 현재 날짜로 필터링
         filterListByDate()
 
@@ -148,6 +125,8 @@ class DeadlineFragment : Fragment() {
                     }
                 }
                 adapter.items = fliteredList
+                adapter.CalcItemsPrority()
+                adapter.sortItemwithDescendingPriority()
                 adapter.notifyDataSetChanged()
             }
         }

@@ -62,8 +62,10 @@ class PriorityFragment : Fragment() {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
                             adapter.items = PersistenceService.share.getAllTodo(mainActivity)
+
                             withContext(Dispatchers.Main)
                             {
+                                adapter.CalcItemsPrority()
                                 adapter.notifyDataSetChanged()
                             }
                         }
@@ -106,40 +108,12 @@ class PriorityFragment : Fragment() {
             withContext(Dispatchers.Main)
             {
                 adapter  = MyAdapter(list)
+                adapter.sortItemwithAscendingPriority()
 
-                adapter.itemClickListener = object : MyAdapter.OnItemClickListener{
-                    override fun OnItemClick(position: Int) {
-                        adapter.setPriorityColor("2f22e0", "ca22e0", "db184f")
-                        adapter.sortItemwithAscendingPriority()
-                    }
-
-                }
-
-                adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
-                    override fun calculatePriority(
-                        _importance: Int,
-                        _timeLeft: Long,
-                        _time_taken: Float
-                    ): Float {
-                        //넘어오는 값이 초에서 일수로 변경되면서 구문 수정했습니다.
-//                val timeLeft = (_timeLeft / (60 * 60 * 1000)).toInt() // 남은 시간
-                        val timeLeft = _timeLeft.toInt() // 남은 시간
-                        var spareTime = timeLeft - _time_taken
-
-                        if(timeLeft < 0)
-                        {
-                            return -1.0f // 아예 기간이 지나면 음수를 반환함
-                        }
-
-                        if(spareTime < 0) // 만약 남은 시간 보다 소요 시간이 더 걸리면
-                        {
-                            spareTime = 0.001f // 극단적으로 줄여서 우선도 상에서 매우 높은 비중을 가지게 해준다
-                        }
-
-                        return 1 / spareTime + _importance * 10
-                    }
-                }
+                adapter.CalcItemsPrority()
+                adapter.sortItemwithDescendingPriority()
                 binding.prioirtyRecyclerView.adapter = adapter
+
             }
         }
 
