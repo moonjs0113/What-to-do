@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
@@ -133,6 +135,7 @@ class MainActivity : AppCompatActivity() {
                     snackbar.show()
                 }
                 var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
+
                 println(newToDo)
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
@@ -141,6 +144,10 @@ class MainActivity : AppCompatActivity() {
                     var list = PersistenceService.share.getAllTodo(this@MainActivity)
                     println(list.size)
                 }
+
+                val intent = Intent(Intent.ACTION_SEND);
+                intent.putExtra("message","dataChanged");
+                sendBroadcast(intent);
 
                 // 저장 성공 후 초기화
                 todoInput.text.clear()
@@ -151,8 +158,6 @@ class MainActivity : AppCompatActivity() {
                 importanceVal = 5
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
-
-
 
             }
         }

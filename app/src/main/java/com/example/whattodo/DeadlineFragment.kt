@@ -1,5 +1,9 @@
 package com.example.whattodo
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,9 +12,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentDeadlineBinding
-import com.example.whattodo.manager.Persistence.toLocalDateTime
+import com.example.whattodo.manager.Persistence.PersistenceService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class DeadlineFragment : Fragment() {
     var binding:FragmentDeadlineBinding?=null
@@ -21,10 +30,51 @@ class DeadlineFragment : Fragment() {
 
     //아래에 데이터가 저장되어 있다고 가정함
     //최종 단계에선 DB에서 끌어오는 방식으로 처리 해야함
-    var arrayList = ToDo.previewData
+    lateinit var mainActivity: MainActivity
+
+    lateinit var broadcastReceiver: BroadcastReceiver
 
     //설정된 날짜로 필터링된 리스트
     val fliteredList = arrayListOf<ToDo>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        PersistenceService.share.registerContext(mainActivity)
+
+        broadcastReceiver = object : BroadcastReceiver(){
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if(intent != null)
+                {
+                    if(intent.hasExtra("message")){
+                        CoroutineScope(Dispatchers.IO).launch{
+                            adapter.items = PersistenceService.share.getAllTodo(mainActivity)
+                            withContext(Dispatchers.Main)
+                            {
+                                adapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_SEND))
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(broadcastReceiver)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -85,12 +135,22 @@ class DeadlineFragment : Fragment() {
 
     private fun filterListByDate() {
         fliteredList.clear()
-        for(item in arrayList){
-            if(item.deadLine.toLocalDateTime().isEqual(seletecdDate)){
-                fliteredList.add(item)
+
+        CoroutineScope(Dispatchers.IO).launch{
+            val list = PersistenceService.share.getAllTodo(mainActivity)
+            withContext(Dispatchers.Main)
+            {
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+                for(item in list){
+                    if(LocalDate.parse(item.deadLine.substring(0,10), formatter).isEqual(seletecdDate.toLocalDate())){
+                        fliteredList.add(item)
+                    }
+                }
+                adapter.items = fliteredList
+                adapter.notifyDataSetChanged()
             }
         }
-        adapter.items = fliteredList
-        adapter.notifyDataSetChanged()
+
     }
 }
