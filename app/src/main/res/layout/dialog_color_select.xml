@@ -4,12 +4,11 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <NumberPicker
-        android:id="@+id/number_picker"
+    <com.skydoves.colorpickerview.ColorPickerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
-
+        android:id="@+id/colorPickerView"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">

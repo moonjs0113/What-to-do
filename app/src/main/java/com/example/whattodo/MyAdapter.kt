@@ -81,21 +81,11 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
         items.sortWith(comparator)
 
-
-        for(item in items)
-        {
-            Log.d("list", item.toString())
-        }
-
         notifyDataSetChanged()
     }
 
     fun CalcItemsPrority()
     {
-        for(item in items){
-            Log.d("데드라인", item.deadLine)
-
-        }
         val currentTime = LocalDateTime.now()
         for(item in items)
         {
@@ -117,7 +107,6 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
             val urgencyFactor = item.time_taken / remainingTime * 100
             val priorityScore = urgencyFactor * item.importance
-            Log.d("우선도", priorityScore.toFloat().toString())
             item.priority = priorityScore.toFloat()
 
         }
@@ -213,16 +202,20 @@ class MyAdapter(var items:ArrayList<ToDo>)
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
+        Log.d("우선도", "우선도 : " + items[position].priority.toString() + " 설명 : " + items[position].explanation + " calDate : " + calDateDays.toString())
+
+
 //        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
         holder.binding.deadLine.text = calDateDays.toString() + "일 전"
         // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
-        if(calDateDays < 0) {
-            holder.binding.deadLine.text = "마감 기한 초과"
-        }
 
         // 아래 구문도 차이나는 시간을 초가 아닌 일수로 전달하는 것으로 바꿨습니다.
         //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
         val priority : Float = items[position].priority
+
+        if(priority < 0) {
+            holder.binding.deadLine.text = "마감 기한 초과"
+        }
 
         if(priority > 50)
         {
