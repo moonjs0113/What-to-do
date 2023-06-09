@@ -5,13 +5,16 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.whattodo.ToDo.Companion.previewData
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
 import com.google.android.material.snackbar.Snackbar
@@ -39,8 +42,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         PersistenceService.share.testRoomManager(this)
         layoutInit()
-
-
     }
 
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
@@ -135,7 +136,9 @@ class MainActivity : AppCompatActivity() {
                     var snackbar = Snackbar.make(binding.root, "마감일이 현재 시간 이전입니다.", Snackbar.LENGTH_LONG)
                     snackbar.show()
                 }
-                var newToDo = ToDo(todoInput.text.toString(), deadline.toString().substring(0, 16), timeToSpendVal.toFloat(), importanceVal, 5f)
+                //마감일의 경우 초를 포함한 뒤에 부분은 잘라서 저장합니다.
+                var newToDo = ToDo(todoInput.text.toString(), deadline.toString().substring(0,16), timeToSpendVal.toFloat(), importanceVal, 5f)
+
                 println(newToDo)
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
@@ -144,6 +147,10 @@ class MainActivity : AppCompatActivity() {
                     var list = PersistenceService.share.getAllTodo(this@MainActivity)
                     println(list.size)
                 }
+
+                val intent = Intent(Intent.ACTION_SEND);
+                intent.putExtra("message","dataChanged");
+                sendBroadcast(intent);
 
                 // 저장 성공 후 초기화
                 todoInput.text.clear()
@@ -155,8 +162,8 @@ class MainActivity : AppCompatActivity() {
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
 
-
-
+                //등록시 토스트 메시지 출력
+                Toast.makeText(this@MainActivity, "일정 등록 완료", Toast.LENGTH_SHORT).show()
             }
         }
     }
