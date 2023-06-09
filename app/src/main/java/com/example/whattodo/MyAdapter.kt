@@ -121,7 +121,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
     var itemClickListener: OnItemClickListener? = object : MyAdapter.OnItemClickListener{
         override fun OnItemClick(position: Int) {
-            sortItemwithDescendingPriority()
+            /////////////// data class에 flag가 생기면 그걸 바꿔주는 역할을 한다 ///////////////////////
         }
 
     }
@@ -179,6 +179,8 @@ class MyAdapter(var items:ArrayList<ToDo>)
         holder.binding.explanation.text = items[position].explanation
         holder.binding.importance.text = "중요도: " + items[position].importance.toString()
 
+        /////////////// data class에 flag가 생기면 그걸 보고 완료 처리로 표기할지 아닌지를 확인한다 ///////////////////////
+
         // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
         val calDate: Long = items[position].deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
@@ -193,9 +195,6 @@ class MyAdapter(var items:ArrayList<ToDo>)
         // 아래 구문도 차이나는 시간을 초가 아닌 일수로 전달하는 것으로 바꿨습니다.
         //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
         val priority : Float = items[position].priority
-
-        Log.d( "Proriri", items[position].explanation.toString() + " " + priority.toString())
-
 
         if(priority > 50)
         {
@@ -242,7 +241,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
         }else // 우선도가 음수 -> 마감기한 놓침
         {
-            holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)
+            holder.binding.priorityImageView.setColorFilter(Color.BLACK)
         }
     }
 

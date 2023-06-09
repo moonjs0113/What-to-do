@@ -48,9 +48,10 @@ class DeadlineFragment : Fragment() {
                 {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
-                            adapter.items = PersistenceService.share.getAllTodo(mainActivity)
+                            filterListByDate()
                             withContext(Dispatchers.Main)
                             {
+
                                 adapter.CalcItemsPrority()
                                 adapter.notifyDataSetChanged()
                             }
