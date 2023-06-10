@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -58,20 +59,20 @@ class PriorityFragment : Fragment() {
         super.onAttach(context)
         mainActivity = context as MainActivity
 
-        broadcastReceiver = object : BroadcastReceiver(){
+        broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 Log.d("onReceive", "onReceive")
                 if(intent != null)
                 {
                     if(intent.hasExtra("message")){
+                        println("broadcast complete")
                         CoroutineScope(Dispatchers.IO).launch{
                             adapter.items = PersistenceService.share.getAllTodo(mainActivity)
-
                             withContext(Dispatchers.Main)
                             {
+                                adapter.notifyDataSetChanged()
                                 adapter.CalcItemsPrority()
                                 adapter.sortItemwithDescendingPriority()
-                                adapter.notifyDataSetChanged()
                             }
                         }
                     }else if(intent.hasExtra("colorChanged1"))
@@ -188,13 +189,11 @@ class PriorityFragment : Fragment() {
                             .setPositiveButton("삭제") { dialog, which ->
                                 // 삭제 작업 수행
                                 CoroutineScope(Dispatchers.IO).launch{
-                                    PersistenceService.share.deleteTodo(adapter.items[position])
-                                    adapter.items.removeAt(position)
-                                    withContext(Dispatchers.Main)
-                                    {
-                                        adapter.notifyItemChanged(position)
-                                    }
+                                    var list2 = PersistenceService.share.getAllTodo(mainActivity)
+                                    PersistenceService.share.deleteTodo(list2[position])
                                 }
+                                adapter.items.removeAt(position)
+                                adapter.notifyItemChanged(position)
                                 dialog.dismiss()
                             }
                             .setNegativeButton("수정") { dialog, which ->
@@ -205,12 +204,23 @@ class PriorityFragment : Fragment() {
                                 mainActivity.binding.datePickedText.setText("${time[0].split("-")[0]}년 ${time[0].split("-")[1].toInt()}월 " +
                                         "${time[0].split("-")[2].toInt()}일 ${time[1].split(":")[0].toInt()}시 ${time[1].split(":")[1].toInt()}분")
                                 mainActivity.binding.importance.setText("${adapter.items[position].importance}/10")
+                                // 저장될 실제 값 바꾸기
+                                mainActivity.deadline = LocalDateTime.now()
+                                mainActivity.deadline = mainActivity.deadline.withYear(time[0].split("-")[0].toInt())
+                                mainActivity.deadline = mainActivity.deadline.withMonth(time[0].split("-")[1].toInt())
+                                mainActivity.deadline = mainActivity.deadline.withDayOfMonth(time[0].split("-")[2].toInt())
+                                mainActivity.deadline = mainActivity.deadline.withHour(time[1].split(":")[0].toInt())
+                                mainActivity.deadline = mainActivity.deadline.withMinute(time[1].split(":")[1].toInt())
+                                mainActivity.importanceVal = adapter.items[position].importance
+                                mainActivity.timeToSpendVal = adapter.items[position].time_taken.toInt()
 
                                 // 수정 모드로 변경 - 등록 버튼이 수정 버튼으로 변경. 수정 버튼을 누르기 전까지는 모드 해제 불가
                                 mainActivity.isAmend = true
                                 mainActivity.binding.registerBtn.text = "수정"
                                 mainActivity.idToAmend = adapter.items[position].id
-
+                                if(!mainActivity.isInputFormOpen) {
+                                    mainActivity.animator.start()
+                                }
                                 dialog.dismiss()
                             }
                             .show()
