@@ -86,29 +86,9 @@ class MyAdapter(var items:ArrayList<ToDo>)
 
     fun CalcItemsPrority()
     {
-        val currentTime = LocalDateTime.now()
         for(item in items)
         {
-//            val calDate: Long = item.deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
-//            // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
-//            var calDateDays = calDate / (24 * 60 * 60 * 1000)
-//            val priority : Float =  calculatePriorityListener?.calculatePriority(item.importance , calDateDays, item.time_taken / 24)!!
-//            item.priority = priority
-
-            //새로운 우선도 계산 방식입니다.
-            val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
-                val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
-//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
-//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
-                duration.toHours().toFloat()
-            } else {
-                -1.0f
-            }
-
-            val urgencyFactor = item.time_taken / remainingTime * 100
-            val priorityScore = urgencyFactor * item.importance
-            item.priority = priorityScore.toFloat()
-
+            item.priority = calculatePriorityListener!!.calculatePriority(item)
         }
     }
 
@@ -125,7 +105,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
     }
 
     interface OnCalculatePriorityListener{ // 우선도 정해주는 함수를 외부로 부터 받습니다
-        fun calculatePriority( _importance : Int, _timeLeft : Long, _time_taken : Float) : Float
+        fun calculatePriority(item : ToDo) : Float
         // importance : 중요도
         // timeLeft : 현재 시간에서 마감일을 뺀 기간. 초 단위로 인수가 넘어갑니다
         // time_taken : 일을 하는 데 걸리는 시간
@@ -139,30 +119,26 @@ class MyAdapter(var items:ArrayList<ToDo>)
         }
 
     }
+
     var itemLongClickListener : OnLongItemClickListener? = null // 꾹 눌렀을 때 반응할 Listener
 
     var calculatePriorityListener : OnCalculatePriorityListener? = object : MyAdapter.OnCalculatePriorityListener{
         override fun calculatePriority(
-            _importance: Int,
-            _timeLeft: Long,
-            _time_taken: Float
+            item : ToDo
         ): Float {
-            //넘어오는 값이 초에서 일수로 변경되면서 구문 수정했습니다.
-//                val timeLeft = (_timeLeft / (60 * 60 * 1000)).toInt() // 남은 시간
-            val timeLeft = _timeLeft.toInt() // 남은 시간
-            var spareTime = timeLeft - _time_taken
 
-            if(timeLeft < 0)
-            {
-                return -1.0f // 아예 기간이 지나면 음수를 반환함
+            val currentTime = LocalDateTime.now()
+            val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+                duration.toHours().toFloat()
+            } else {                -0.00001f
+
             }
+            
+            val urgencyFactor = item.time_taken / remainingTime * 100
+            val priorityScore = urgencyFactor + item.importance * 5
 
-            if(spareTime < 0) // 만약 남은 시간 보다 소요 시간이 더 걸리면
-            {
-                spareTime = 0.001f // 극단적으로 줄여서 우선도 상에서 매우 높은 비중을 가지게 해준다
-            }
-
-            return 100 / spareTime + _importance * 5
+            return priorityScore
         }
     }
 
@@ -202,9 +178,6 @@ class MyAdapter(var items:ArrayList<ToDo>)
         // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
         var calDateDays = calDate / (24 * 60 * 60 * 1000)
 
-        Log.d("우선도", "우선도 : " + items[position].priority.toString() + " 설명 : " + items[position].explanation + " calDate : " + calDateDays.toString())
-
-
 //        holder.binding.deadLine.text = "마감 " + calDateDays.toString() + "일 전"
         holder.binding.deadLine.text = calDateDays.toString() + "일 전"
         // calDateDay가 음수 -> 마감기한이 지났다 -> 제한 시간 내에 완수 불가능
@@ -213,22 +186,24 @@ class MyAdapter(var items:ArrayList<ToDo>)
         //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
         val priority : Float = items[position].priority
 
+        Log.d("우선도", " 설명 : " + items[position].explanation + "  우선도 : " + items[position].priority.toString())
+
         if(priority < 0) {
             holder.binding.deadLine.text = "마감 기한 초과"
         }
 
         if(priority > 50)
         {
-            var priorityGap = 100 - priority
+            var priorityGap = priority - 50
             var hex =""
 
             //만약 우선도가 100이상이면 최대치로, 그 이하면 50과의 간격 차이에 비례 해서 명도가 결정이 된다
-            if(priorityGap < 0)
+            if(priority >= 100)
             {
                 hex = "FF"
             }else
             {
-                hex = Integer.toHexString(((priorityGap / (100 - 50)) * 200 + 56).toInt())
+                hex = Integer.toHexString(((priorityGap / (100 - 50)) * 156 + 100).toInt())
             }
 
             if(hex.length == 1)
@@ -240,7 +215,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
         }else if(priority > 10)
         {
             val priorityGap = priority - 20
-            var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 200 + 56).toInt())
+            var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 156 + 100).toInt())
 
             if(hex.length == 1)
             {
@@ -248,10 +223,10 @@ class MyAdapter(var items:ArrayList<ToDo>)
             }
 
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[1]}"))
-        }else if(priority > 0)
+        }else if(priority >= 0)
         {
             val priorityGap = priority
-            var hex = Integer.toHexString(((priorityGap / (10 - 0)) * 200 + 56).toInt())
+            var hex = Integer.toHexString(((priorityGap / (10 - 0)) * 156 + 100).toInt())
 
             if(hex.length == 1)
             {
