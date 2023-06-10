@@ -169,7 +169,6 @@ class PriorityFragment : Fragment() {
 
         CoroutineScope(Dispatchers.IO).launch{
             var list = PersistenceService.share.getAllTodo()
-
             withContext(Dispatchers.Main)
             {
                 adapter  = MyAdapter(list)
