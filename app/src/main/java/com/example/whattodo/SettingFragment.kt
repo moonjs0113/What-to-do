@@ -1,6 +1,7 @@
 package com.example.whattodo
 
 import android.R
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -10,6 +11,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.NumberPicker
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.whattodo.databinding.FragmentSettingBinding
@@ -29,8 +33,15 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class SettingFragment : Fragment() {
-
+// 여기는 환경 설정 shared Reference 설정되면 그 데이터를 가지고 올 것임///
     var colorList = arrayListOf<String>("e03b22", "eff238", "24f064")
+
+    var leftTimeNumPick = 10
+    var priorityNumPick = 5
+    var isLeftTimeLeft = true
+
+    // 여기는 환경 설정 shared Reference 설정되면 그 데이터를 가지고 올 것임///
+
     lateinit var mainActivity: MainActivity
 
     override fun onAttach(context: Context) {
@@ -146,8 +157,58 @@ class SettingFragment : Fragment() {
             }
         )
 
+        binding.changeCal.setOnClickListener {
+            val layout = layoutInflater.inflate(com.example.whattodo.R.layout.dialog_prioritycalc_select, null)
+            val build = AlertDialog.Builder(mainActivity).apply {
+                setView(layout)
+            }
+            val dialog = build.create()
+            dialog.show()
+
+            var leftTimePrefer : RadioButton = layout.findViewById(com.example.whattodo.R.id.leftTimePrefer)
+            var priorityPrefer : RadioButton = layout.findViewById(com.example.whattodo.R.id.priorityPrefer)
+
+            leftTimePrefer.isChecked = isLeftTimeLeft
+            priorityPrefer.isChecked = !isLeftTimeLeft
+
+
+            var spareTimeScalar: NumberPicker = layout.findViewById(com.example.whattodo.R.id.spareTimeScalar)
+            spareTimeScalar.minValue = 1
+            spareTimeScalar.maxValue = 10
+            spareTimeScalar.value = leftTimeNumPick
+
+            var priorityScalar: NumberPicker = layout.findViewById(com.example.whattodo.R.id.priorityScalar)
+            priorityScalar.minValue = 1
+            priorityScalar.maxValue = 10
+            priorityScalar.value = priorityNumPick
+
+            var btnCancel: Button = layout.findViewById(com.example.whattodo.R.id.btn_cancel2)
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            var btnOK: Button = layout.findViewById(com.example.whattodo.R.id.btn_ok2)
+            btnOK.setOnClickListener {
+                dialog.dismiss()
+
+                leftTimeNumPick = spareTimeScalar.value
+                priorityNumPick = priorityScalar.value
+                isLeftTimeLeft = leftTimePrefer.isChecked
+
+                val intent = Intent("calc changed")
+                intent.putExtra("spareTimeScalar",spareTimeScalar.value)
+                intent.putExtra("priorityScalar",priorityScalar.value)
+                intent.putExtra("ifLeftTimeChecked",leftTimePrefer.isChecked)
+                mainActivity.sendBroadCastInMainActivity(intent)
+            }
+
+        }
+
+
+
         return binding.root
     }
+
 
     companion object {
 

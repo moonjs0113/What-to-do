@@ -14,13 +14,16 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentPriorityBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
+import com.example.whattodo.manager.Persistence.toLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -80,6 +83,61 @@ class PriorityFragment : Fragment() {
                         adapter.setPriorityColor( color1 , color2, color3)
                         adapter.notifyDataSetChanged()
                         Log.d("Prioirty", "color received")
+                    }else if(intent.hasExtra("spareTimeScalar"))
+                    {
+                        val spareTimeScalar = intent.getIntExtra("spareTimeScalar", 100)!!
+                        val priorityScalar = intent.getIntExtra("priorityScalar", 5)!!
+                        val ifLeftTimeChecked = intent.getBooleanExtra("ifLeftTimeChecked", true)!!
+
+                        if(ifLeftTimeChecked)
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * (spareTimeScalar * 10)
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar
+
+                                    return priorityScore
+                                }
+                            }
+                        }else
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * spareTimeScalar
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 3
+
+                                    return priorityScore
+                                }
+                            }
+                        }
+
+                        adapter.CalcItemsPrority()
+                        adapter.sortItemwithDescendingPriority()
+                        adapter.notifyDataSetChanged()
                     }
                 }
             }
@@ -88,6 +146,7 @@ class PriorityFragment : Fragment() {
 
         val intentFilter = IntentFilter("Todo added")
         intentFilter.addAction("color changed")
+        intentFilter.addAction("calc changed")
         requireActivity().registerReceiver(broadcastReceiver, intentFilter)
     }
 

@@ -14,10 +14,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentDeadlineBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
+import com.example.whattodo.manager.Persistence.toLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -71,6 +73,61 @@ class DeadlineFragment : Fragment() {
                         adapter.setPriorityColor(color1 , color2, color3)
                         adapter.notifyDataSetChanged()
                         Log.d("DeadLine", "color received")
+                    }else if(intent.hasExtra("spareTimeScalar"))
+                    {
+                        val spareTimeScalar = intent.getIntExtra("spareTimeScalar", 100)!!
+                        val priorityScalar = intent.getIntExtra("priorityScalar", 5)!!
+                        val ifLeftTimeChecked = intent.getBooleanExtra("ifLeftTimeChecked", true)!!
+
+                        if(ifLeftTimeChecked)
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * (spareTimeScalar * 10)
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar
+
+                                    return priorityScore
+                                }
+                            }
+                        }else
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * spareTimeScalar
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 3
+
+                                    return priorityScore
+                                }
+                            }
+                        }
+
+                        adapter.CalcItemsPrority()
+                        adapter.sortItemwithDescendingPriority()
+                        adapter.notifyDataSetChanged()
                     }
                 }
             }
@@ -79,9 +136,9 @@ class DeadlineFragment : Fragment() {
 
         val intentFilter = IntentFilter("Todo added")
         intentFilter.addAction("color changed")
+        intentFilter.addAction("calc changed")
         requireActivity().registerReceiver(broadcastReceiver, intentFilter)
 
-        Toast.makeText(requireActivity(), "onAttach DeadLine", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDetach() {
@@ -93,7 +150,6 @@ class DeadlineFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.d("DeadLine", "DeadLine onCreateView")
         binding = FragmentDeadlineBinding.inflate(layoutInflater, container, false)
 
         //달력 날짜 변경 이벤트 처리
