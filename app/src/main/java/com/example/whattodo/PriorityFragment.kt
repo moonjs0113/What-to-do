@@ -67,6 +67,7 @@ class PriorityFragment : Fragment() {
                             withContext(Dispatchers.Main)
                             {
                                 adapter.CalcItemsPrority()
+                                adapter.sortItemwithDescendingPriority()
                                 adapter.notifyDataSetChanged()
                             }
                         }

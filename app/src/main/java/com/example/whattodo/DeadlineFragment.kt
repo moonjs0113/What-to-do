@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -28,8 +27,6 @@ class DeadlineFragment : Fragment() {
     //선택된 날짜 데이터 초기값은 오늘날짜
     var seletecdDate: LocalDateTime = LocalDateTime.now()
 
-    //아래에 데이터가 저장되어 있다고 가정함
-    //최종 단계에선 DB에서 끌어오는 방식으로 처리 해야함
     lateinit var mainActivity: MainActivity
 
     lateinit var broadcastReceiver: BroadcastReceiver
@@ -48,10 +45,11 @@ class DeadlineFragment : Fragment() {
                 {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
-                            adapter.items = PersistenceService.share.getAllTodo(mainActivity)
+                            filterListByDate()
                             withContext(Dispatchers.Main)
                             {
                                 adapter.CalcItemsPrority()
+                                adapter.sortItemwithDescendingPriority()
                                 adapter.notifyDataSetChanged()
                             }
                         }
@@ -86,9 +84,18 @@ class DeadlineFragment : Fragment() {
         //달력 날짜 변경 이벤트 처리
         binding!!.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             seletecdDate = LocalDateTime.of(year, month+1, dayOfMonth, 0,0)
-            Log.i("seletecDate", seletecdDate.toString())
 
             filterListByDate()
+
+//            CoroutineScope(Dispatchers.IO).launch {
+//                var arrayList = PersistenceService.share.getAllTodo(requireContext())
+//                for(list in arrayList){
+//                    PersistenceService.share.deleteTodo(list)
+//                }
+//                for (i in ToDo.previewData){
+//                    PersistenceService.share.insertTodo(i)
+//                }
+//            }
         }
 
         //리스트 내의 아이템 클릭시 이벤트 처리
