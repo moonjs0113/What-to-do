@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentDeadlineBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
@@ -37,7 +39,14 @@ class DeadlineFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Log.d("DeadLine", "DeadLine onCreate")
         PersistenceService.share.registerContext(mainActivity)
+
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
 
         broadcastReceiver = object : BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -53,32 +62,38 @@ class DeadlineFragment : Fragment() {
                                 adapter.notifyDataSetChanged()
                             }
                         }
+                    }else if(intent.hasExtra("colorChanged1"))
+                    {
+                        val color1 = intent.getStringExtra("colorChanged1")!!
+                        val color2 = intent.getStringExtra("colorChanged2")!!
+                        val color3 = intent.getStringExtra("colorChanged3")!!
+
+                        adapter.setPriorityColor(color1 , color2, color3)
+                        adapter.notifyDataSetChanged()
+                        Log.d("DeadLine", "color received")
                     }
                 }
             }
 
         }
+
+        val intentFilter = IntentFilter("Todo added")
+        intentFilter.addAction("color changed")
+        requireActivity().registerReceiver(broadcastReceiver, intentFilter)
+
+        Toast.makeText(requireActivity(), "onAttach DeadLine", Toast.LENGTH_SHORT).show()
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_SEND))
-    }
-
-    override fun onPause() {
-        super.onPause()
+    override fun onDetach() {
+        super.onDetach()
         requireActivity().unregisterReceiver(broadcastReceiver)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mainActivity = context as MainActivity
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("DeadLine", "DeadLine onCreateView")
         binding = FragmentDeadlineBinding.inflate(layoutInflater, container, false)
 
         //달력 날짜 변경 이벤트 처리

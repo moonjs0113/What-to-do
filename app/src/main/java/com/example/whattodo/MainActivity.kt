@@ -47,13 +47,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
     fun layoutInit() {
         binding.viewPager.adapter = MainViewPagerAdapter(this)
+        binding.viewPager.offscreenPageLimit = 3
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, pos ->
             tab.text = textarr[pos]
 //            tab.setIcon(imgarr[pos])
         }.attach()
 
         binding.apply {
-
             datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             var bottomBarHeight = 0
             val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -148,9 +148,9 @@ class MainActivity : AppCompatActivity() {
                     println(list.size)
                 }
 
-                val intent = Intent(Intent.ACTION_SEND);
-                intent.putExtra("message","dataChanged");
-                sendBroadcast(intent);
+                val intent = Intent("Todo added")
+                intent.putExtra("message","dataChanged")
+                sendBroadcast(intent)
 
                 // 저장 성공 후 초기화
                 todoInput.text.clear()
@@ -167,6 +167,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun sendBroadCastInMainActivity(intent : Intent)
+    {
+        Log.d("sendBroadCastInMainActivity", intent.action.toString() + "  " +intent.getStringExtra("colorChanged1").toString() + "  " +  intent.getStringExtra("colorChanged2").toString()+ "  " + intent.getStringExtra("colorChanged3").toString() )
+        sendBroadcast(intent)
+    }
+
 
     fun setTimeToSpend() {
         val layout = layoutInflater.inflate(R.layout.dialog_num_select, null)

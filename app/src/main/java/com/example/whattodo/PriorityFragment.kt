@@ -36,8 +36,6 @@ private const val ARG_PARAM2 = "param2"
  */
 class PriorityFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     lateinit var adapter: MyAdapter
     lateinit var mainActivity: MainActivity
@@ -48,15 +46,18 @@ class PriorityFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
 
         PersistenceService.share.registerContext(mainActivity)
 
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+
         broadcastReceiver = object : BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d("onReceive", "onReceive")
                 if(intent != null)
                 {
                     if(intent.hasExtra("message")){
@@ -70,26 +71,30 @@ class PriorityFragment : Fragment() {
                                 adapter.notifyDataSetChanged()
                             }
                         }
+                    }else if(intent.hasExtra("colorChanged1"))
+                    {
+                        val color1 = intent.getStringExtra("colorChanged1")!!
+                        val color2 = intent.getStringExtra("colorChanged2")!!
+                        val color3 = intent.getStringExtra("colorChanged3")!!
+
+                        adapter.setPriorityColor( color1 , color2, color3)
+                        adapter.notifyDataSetChanged()
+                        Log.d("Prioirty", "color received")
                     }
                 }
             }
 
         }
+
+        val intentFilter = IntentFilter("Todo added")
+        intentFilter.addAction("color changed")
+        requireActivity().registerReceiver(broadcastReceiver, intentFilter)
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_SEND))
-    }
-
-    override fun onPause() {
-        super.onPause()
+    override fun onDetach() {
+        super.onDetach()
         requireActivity().unregisterReceiver(broadcastReceiver)
-    }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mainActivity = context as MainActivity
     }
 
     override fun onCreateView(
@@ -134,10 +139,7 @@ class PriorityFragment : Fragment() {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             PriorityFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+
             }
     }
 
