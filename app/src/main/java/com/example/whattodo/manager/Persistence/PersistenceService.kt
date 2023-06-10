@@ -1,6 +1,7 @@
 package com.example.whattodo.manager.Persistence
 
 import android.content.Context
+import android.graphics.Color
 import com.example.whattodo.ToDo
 import com.example.whattodo.manager.room.RoomManager
 
@@ -13,17 +14,15 @@ class PersistenceService {
     }
 
     // SharedPreferences
-//    fun get
+    fun getColorArray() : ArrayList<String> = sharedPreferencesManger.getColorCodeArray()
 
     // Room
     fun registerContext(context: Context) {
         roomManager.registerContext(context)
-
+        sharedPreferencesManger.registerContext(context)
     }
 
-    fun getAllTodo(context: Context): ArrayList<ToDo> {
-        return roomManager.getAllToDo()
-    }
+    fun getAllTodo(): ArrayList<ToDo> = roomManager.getAllToDo()
 
     fun insertTodo(toDo: ToDo) {
         roomManager.insertToDo(toDo)
@@ -39,6 +38,6 @@ class PersistenceService {
 
     /// Context에서 호출하여 테스트해볼 수 있습니다. 테스트 결과는 Logcat을 통해 확인할 수 있습니다.
     fun testRoomManager(context: Context) {
-        roomManager.test(context)
+//        roomManager.test(context)
     }
 }
