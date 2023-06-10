@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -47,10 +46,10 @@ class DeadlineFragment : Fragment() {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
                             filterListByDate()
-//                            adapter.items = fliteredList
                             withContext(Dispatchers.Main)
                             {
                                 adapter.CalcItemsPrority()
+                                adapter.sortItemwithDescendingPriority()
                                 adapter.notifyDataSetChanged()
                             }
                         }
@@ -85,7 +84,6 @@ class DeadlineFragment : Fragment() {
         //달력 날짜 변경 이벤트 처리
         binding!!.calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             seletecdDate = LocalDateTime.of(year, month+1, dayOfMonth, 0,0)
-            Log.i("seletecDate", seletecdDate.toString())
 
             filterListByDate()
 
