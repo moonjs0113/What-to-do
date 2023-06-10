@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
 
-                val intent = Intent(Intent.ACTION_SEND);
+                val intent = Intent("Todo added");
                 intent.putExtra("message","dataChanged");
                 sendBroadcast(intent);
 

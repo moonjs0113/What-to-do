@@ -61,7 +61,7 @@ class PriorityFragment : Fragment() {
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                Log.d("onReceive", "onReceive")
+                Log.d("PriorityFragment", "onReceive")
                 if(intent != null)
                 {
                     if(intent.hasExtra("message")){
