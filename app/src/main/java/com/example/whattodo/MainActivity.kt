@@ -26,6 +26,10 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     val textarr = arrayListOf<String>("우선도", "마감일", "검색", "환경설정")
+
+    // 입력폼 움직임을 위한 애니매이터
+    lateinit var animator: ObjectAnimator
+
     var deadline = LocalDateTime.now()
     var timeToSpendVal = 1
     var importanceVal = 5
@@ -64,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                 bottomBarHeight = resources.getDimensionPixelSize(resourceId)
             }
             println(bottomBarHeight)
-            val animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
+            animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
             animator.interpolator = AccelerateDecelerateInterpolator()
 
             animator.addUpdateListener { animation ->
@@ -155,6 +159,8 @@ class MainActivity : AppCompatActivity() {
                         registerBtn.text = "등록"
                     } else {
                         PersistenceService.share.insertTodo(newToDo)
+                        var list = PersistenceService.share.getAllTodo(this@MainActivity)
+                        println(list)
                     }
                 }
 
@@ -172,6 +178,11 @@ class MainActivity : AppCompatActivity() {
                 importanceVal = 5
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
+
+                if(isInputFormOpen) {
+                    animator.reverse()
+                    isInputFormOpen = false
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.example.whattodo
 
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -98,17 +99,62 @@ class DeadlineFragment : Fragment() {
 //            }
         }
 
-        //리스트 내의 아이템 클릭시 이벤트 처리
-        //아직 미구현(뭘 하기로 했는지 기억이...)
-        adapter.itemClickListener = object :MyAdapter.OnItemClickListener{
-            override fun OnItemClick(position: Int) {
+            //리사이클러뷰 초기설정
+            binding!!.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
+            //리스트 내의 아이템 클릭시 이벤트 처리 - 수정, 삭제
+            adapter.itemLongClickListener = object : MyAdapter.OnItemClickListener,
+                MyAdapter.OnLongItemClickListener {
+                override fun OnItemClick(position: Int) {
+                    TODO("Not yet implemented")
+                }
 
+                override fun OnItemLongClick(position: Int): Boolean {
+                    // Todo 객체 삭제
+                    val builder = AlertDialog.Builder(mainActivity)
+                    builder.setMessage("수정 또는 삭제하시겠습니까?")
+                        .setPositiveButton("삭제") { dialog, which ->
+                            // 삭제 작업 수행
+                            // 삭제 작업 수행
+                            CoroutineScope(Dispatchers.IO).launch {
+                                PersistenceService.share.registerContext(mainActivity)
+                                var list2 = PersistenceService.share.getAllTodo(mainActivity)
+                                PersistenceService.share.deleteTodo(list2[position])
+                            }
+                            adapter.items.removeAt(position)
+                            adapter.notifyDataSetChanged()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("수정") { dialog, which ->
+                            // 수정
+                            mainActivity.binding.todoInput.setText(adapter.items[position].explanation)
+                            mainActivity.binding.timeToSpend.setText("${adapter.items[position].time_taken.toInt()}시간")
+                            val time = adapter.items[position].deadLine.split("T")
+                            mainActivity.binding.datePickedText.setText(
+                                "${time[0].split("-")[0]}년 ${time[0].split("-")[1].toInt()}월 " +
+                                        "${time[0].split("-")[2].toInt()}일 ${time[1].split(":")[0].toInt()}시 ${
+                                            time[1].split(
+                                                ":"
+                                            )[1].toInt()
+                                        }분"
+                            )
+                            mainActivity.binding.importance.setText("${adapter.items[position].importance}/10")
+
+                            // 수정 모드로 변경 - 등록 버튼이 수정 버튼으로 변경. 수정 버튼을 누르기 전까지는 모드 해제 불가
+                            mainActivity.isAmend = true
+                            mainActivity.binding.registerBtn.text = "수정"
+                            if (mainActivity.animator != null && !mainActivity.isInputFormOpen) {
+                                mainActivity.animator.start()
+                                mainActivity.isInputFormOpen = true
+                            }
+                            mainActivity.idToAmend = adapter.items[position].id
+
+                            dialog.dismiss()
+                        }
+                        .show()
+                    return true
+                }
             }
-        }
-
-        //리사이클러뷰 초기설정
-        binding!!.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding!!.prioirtyRecyclerView.adapter = this@DeadlineFragment.adapter
+            binding!!.prioirtyRecyclerView.adapter = this@DeadlineFragment.adapter
 
         //시작하면서 현재 날짜로 필터링
         filterListByDate()
