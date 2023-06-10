@@ -12,7 +12,9 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
 import com.google.android.material.snackbar.Snackbar
@@ -26,18 +28,9 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     val textarr = arrayListOf<String>("우선도", "마감일", "검색", "환경설정")
-
-    // 입력폼 움직임을 위한 애니매이터
-    lateinit var animator: ObjectAnimator
-
     var deadline = LocalDateTime.now()
     var timeToSpendVal = 1
     var importanceVal = 5
-
-    // 수정인지 등록인지 표시하는 플래그
-    var isAmend = false
-    // 수정할 객체 id
-    var idToAmend = 0
 
     var isInputFormOpen = false;
 
@@ -54,13 +47,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
     fun layoutInit() {
         binding.viewPager.adapter = MainViewPagerAdapter(this)
+        binding.viewPager.offscreenPageLimit = 3
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, pos ->
             tab.text = textarr[pos]
 //            tab.setIcon(imgarr[pos])
         }.attach()
 
         binding.apply {
-
             datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             var bottomBarHeight = 0
             val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -68,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                 bottomBarHeight = resources.getDimensionPixelSize(resourceId)
             }
             println(bottomBarHeight)
-            animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
+            val animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
             animator.interpolator = AccelerateDecelerateInterpolator()
 
             animator.addUpdateListener { animation ->
@@ -135,39 +128,29 @@ class MainActivity : AppCompatActivity() {
             )
 
             registerBtn.setOnClickListener {
-                if(todoInput.text.isEmpty() && !isAmend) {
+                if(todoInput.text.isEmpty()) {
                     var snackbar = Snackbar.make(binding.root, "일정 이름을 입력해주세요.", Snackbar.LENGTH_LONG)
                     snackbar.show()
-                    return@setOnClickListener
                 }
-                if(deadline.isBefore(LocalDateTime.now()) && !isAmend) {
+                if(deadline.isBefore(LocalDateTime.now())) {
                     var snackbar = Snackbar.make(binding.root, "마감일이 현재 시간 이전입니다.", Snackbar.LENGTH_LONG)
                     snackbar.show()
-                    return@setOnClickListener
                 }
-                var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
-                newToDo.id = idToAmend
+                //마감일의 경우 초를 포함한 뒤에 부분은 잘라서 저장합니다.
+                var newToDo = ToDo(todoInput.text.toString(), deadline.toString().substring(0,16), timeToSpendVal.toFloat(), importanceVal, 5f)
+
                 println(newToDo)
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
                     PersistenceService.share.registerContext(this@MainActivity)
-                    // 수정 모드인 경우
-                    if(isAmend) {
-                        PersistenceService.share.updateTodo(newToDo)
-                        // 수정 끝
-                        isAmend = false
-                        registerBtn.text = "등록"
-                    } else {
-                        PersistenceService.share.insertTodo(newToDo)
-                        var list = PersistenceService.share.getAllTodo(this@MainActivity)
-                        println(list)
-                    }
+                    PersistenceService.share.insertTodo(newToDo)
+                    var list = PersistenceService.share.getAllTodo(this@MainActivity)
+                    println(list.size)
                 }
 
-
-                val intent = Intent(Intent.ACTION_SEND);
-                intent.putExtra("message","dataChanged");
-                sendBroadcast(intent);
+                val intent = Intent("Todo added")
+                intent.putExtra("message","dataChanged")
+                sendBroadcast(intent)
 
                 // 저장 성공 후 초기화
                 todoInput.text.clear()
@@ -179,13 +162,18 @@ class MainActivity : AppCompatActivity() {
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
 
-                if(isInputFormOpen) {
-                    animator.reverse()
-                    isInputFormOpen = false
-                }
+                //등록시 토스트 메시지 출력
+                Toast.makeText(this@MainActivity, "일정 등록 완료", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    fun sendBroadCastInMainActivity(intent : Intent)
+    {
+        Log.d("sendBroadCastInMainActivity", intent.action.toString() + "  " +intent.getStringExtra("colorChanged1").toString() + "  " +  intent.getStringExtra("colorChanged2").toString()+ "  " + intent.getStringExtra("colorChanged3").toString() )
+        sendBroadcast(intent)
+    }
+
 
     fun setTimeToSpend() {
         val layout = layoutInflater.inflate(R.layout.dialog_num_select, null)

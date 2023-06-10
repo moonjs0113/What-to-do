@@ -15,12 +15,14 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentPriorityBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
+import com.example.whattodo.manager.Persistence.toLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -38,8 +40,6 @@ private const val ARG_PARAM2 = "param2"
  */
 class PriorityFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
     lateinit var adapter: MyAdapter
     lateinit var mainActivity: MainActivity
@@ -50,15 +50,18 @@ class PriorityFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
 
         PersistenceService.share.registerContext(mainActivity)
 
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+
         broadcastReceiver = object : BroadcastReceiver(){
             override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d("onReceive", "onReceive")
                 if(intent != null)
                 {
                     if(intent.hasExtra("message")){
@@ -72,26 +75,86 @@ class PriorityFragment : Fragment() {
                                 adapter.notifyDataSetChanged()
                             }
                         }
+                    }else if(intent.hasExtra("colorChanged1"))
+                    {
+                        val color1 = intent.getStringExtra("colorChanged1")!!
+                        val color2 = intent.getStringExtra("colorChanged2")!!
+                        val color3 = intent.getStringExtra("colorChanged3")!!
+
+                        adapter.setPriorityColor( color1 , color2, color3)
+                        adapter.notifyDataSetChanged()
+                        Log.d("Prioirty", "color received")
+                    }else if(intent.hasExtra("spareTimeScalar"))
+                    {
+                        val spareTimeScalar = intent.getIntExtra("spareTimeScalar", 100)!!
+                        val priorityScalar = intent.getIntExtra("priorityScalar", 5)!!
+                        val ifLeftTimeChecked = intent.getBooleanExtra("ifLeftTimeChecked", true)!!
+
+                        if(ifLeftTimeChecked)
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * (spareTimeScalar * 10)
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar
+
+                                    return priorityScore
+                                }
+                            }
+                        }else
+                        {
+                            adapter.calculatePriorityListener = object : MyAdapter.OnCalculatePriorityListener{
+                                override fun calculatePriority(
+                                    item : ToDo
+                                ): Float {
+                                    val currentTime = LocalDateTime.now()
+                                    val remainingTime = if (item.deadLine.toLocalDateTime() > currentTime) {
+                                        val duration = Duration.between(currentTime, item.deadLine.toLocalDateTime())
+//                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
+//                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
+                                        duration.toHours().toFloat()
+                                    } else {                -0.00001f
+
+                                    }
+
+                                    val urgencyFactor = item.time_taken / remainingTime * spareTimeScalar
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 3
+
+                                    return priorityScore
+                                }
+                            }
+                        }
+
+                        adapter.CalcItemsPrority()
+                        adapter.sortItemwithDescendingPriority()
+                        adapter.notifyDataSetChanged()
                     }
                 }
             }
 
         }
+
+        val intentFilter = IntentFilter("Todo added")
+        intentFilter.addAction("color changed")
+        intentFilter.addAction("calc changed")
+        requireActivity().registerReceiver(broadcastReceiver, intentFilter)
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_SEND))
-    }
-
-    override fun onPause() {
-        super.onPause()
+    override fun onDetach() {
+        super.onDetach()
         requireActivity().unregisterReceiver(broadcastReceiver)
-    }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mainActivity = context as MainActivity
     }
 
     override fun onCreateView(
@@ -194,10 +257,7 @@ class PriorityFragment : Fragment() {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             PriorityFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+
             }
     }
 

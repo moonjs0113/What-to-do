@@ -6,17 +6,24 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.whattodo.search.SearchFragment
 
 class MainViewPagerAdapter(fragmentActivity: FragmentActivity): FragmentStateAdapter(fragmentActivity) {
+
+    val priorityFragment = PriorityFragment()
+    val deadlineFragment = DeadlineFragment()
+    val searchFragment = SearchFragment()
+    val settingFragment = SettingFragment()
+
+
     override fun getItemCount(): Int {
         return 4
     }
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> PriorityFragment()
-            1-> DeadlineFragment()
-            2 -> SearchFragment()
-            3 -> SettingFragment()
-            else -> PriorityFragment()
+            0 -> priorityFragment
+            1-> deadlineFragment
+            2 -> searchFragment
+            3 -> settingFragment
+            else -> priorityFragment
         }
     }
 }
