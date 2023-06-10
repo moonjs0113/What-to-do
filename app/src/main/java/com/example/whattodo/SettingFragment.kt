@@ -53,7 +53,6 @@ class SettingFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         PersistenceService.share.registerContext(mainActivity)
-
     }
 
     override fun onCreateView(
