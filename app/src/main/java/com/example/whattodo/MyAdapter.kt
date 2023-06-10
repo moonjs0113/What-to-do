@@ -134,7 +134,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
             } else {                -0.00001f
 
             }
-            
+
             val urgencyFactor = item.time_taken / remainingTime * 100
             val priorityScore = urgencyFactor + item.importance * 5
 
@@ -214,7 +214,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[0]}"))
         }else if(priority > 10)
         {
-            val priorityGap = priority - 20
+            val priorityGap = priority - 10
             var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 156 + 100).toInt())
 
             if(hex.length == 1)
