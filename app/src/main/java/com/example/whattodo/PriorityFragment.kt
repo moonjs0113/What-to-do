@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.databinding.FragmentPriorityBinding
@@ -18,26 +17,13 @@ import com.example.whattodo.manager.Persistence.PersistenceService
 import com.example.whattodo.manager.Persistence.toLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PriorityFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class PriorityFragment : Fragment() {
     // TODO: Rename and change types of parameters
 
@@ -169,6 +155,7 @@ class PriorityFragment : Fragment() {
         binding.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
 
         CoroutineScope(Dispatchers.IO).launch{
+            PersistenceService.share.registerContext(mainActivity)
             var list = PersistenceService.share.getAllTodo(mainActivity)
 
             withContext(Dispatchers.Main)
@@ -189,6 +176,7 @@ class PriorityFragment : Fragment() {
                             .setPositiveButton("삭제") { dialog, which ->
                                 // 삭제 작업 수행
                                 CoroutineScope(Dispatchers.IO).launch{
+                                    PersistenceService.share.registerContext(mainActivity)
                                     var list2 = PersistenceService.share.getAllTodo(mainActivity)
                                     PersistenceService.share.deleteTodo(list2[position])
                                 }
