@@ -103,6 +103,8 @@ class MyAdapter(var items:ArrayList<ToDo>)
         fun OnItemLongClick(position : Int) : Boolean // 꾹 눌렀을 때 반응할 콜백 함수는 Boolean 값을 반환해 줘야 합니다
     }
 
+
+
     interface OnCalculatePriorityListener{ // 우선도 정해주는 함수를 외부로 부터 받습니다
         fun calculatePriority(item : ToDo) : Float
         // importance : 중요도
@@ -142,7 +144,7 @@ class MyAdapter(var items:ArrayList<ToDo>)
     }
 
     inner class MyViewHolder(val binding: SimpleViewHolderBinding) : RecyclerView.ViewHolder(binding.root)
-    {  
+    {
         init{
             binding.touchableLayout.setOnClickListener{
                 itemClickListener?.OnItemClick(adapterPosition)
