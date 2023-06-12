@@ -8,14 +8,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="right"
+        android:gravity="center"
         >
 
         <RadioGroup
             android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_margin="10sp"
             >
             <RadioButton
@@ -23,9 +23,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="남은 시간 우선"
-                android:layout_marginRight="15sp"
                 android:textSize="12sp"
                 android:checked="true"
+                android:layout_marginRight="15dp"
                 >
             </RadioButton>
 
@@ -33,7 +33,6 @@
                 android:id="@+id/priorityPrefer"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="10sp"
                 android:text="중요도 우선"
 
                 android:textSize="12sp"
@@ -42,46 +41,49 @@
 
         </RadioGroup>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="여유시간 \n비중"
-            android:layout_margin="5sp"
-            android:textStyle="bold"
-            android:textSize="10sp"
-            android:gravity="center"
-            />
-
-
-        <NumberPicker
-            android:id="@+id/spareTimeScalar"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="10sp"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="중요도 \n비중"
-            android:textStyle="bold"
-            android:textSize="10sp"
-            android:layout_margin="10sp"
-            android:gravity="center"
-            />
-
-        <NumberPicker
-            android:id="@+id/priorityScalar"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_margin="10sp"
-            />
 
     </LinearLayout>
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5sp"
+            android:gravity="center"
+            android:text="여유시간\n비중"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <NumberPicker
+            android:id="@+id/spareTimeScalar"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:layout_margin="10sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10sp"
+            android:gravity="center"
+            android:text="중요도\n비중"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <NumberPicker
+            android:id="@+id/priorityScalar"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_gravity="center"
+            android:layout_margin="10sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
