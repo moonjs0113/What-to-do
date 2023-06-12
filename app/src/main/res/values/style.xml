@@ -26,4 +26,11 @@
         <item name="android:buttonBarPositiveButtonStyle">@style/DatePickerTheme.ButtonBarNegativeButtonStyle</item>
     </style>
 
+    <style name="completeSwitch" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorControlActivated">@color/pickButtonBackground</item>
+        <item name="colorSwitchThumbNormal">@color/buttonBackground</item>
+        <item name="android:colorForeground">#42221f1f
+        </item>
+    </style>
+
 </resources>
