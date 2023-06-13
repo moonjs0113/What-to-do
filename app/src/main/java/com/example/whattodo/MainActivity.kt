@@ -159,8 +159,6 @@ class MainActivity : AppCompatActivity() {
                         registerBtn.text = "등록"
                     } else {
                         PersistenceService.share.insertTodo(newToDo)
-                        var list = PersistenceService.share.getAllTodo(this@MainActivity)
-                        println(list)
                     }
                 }
 
