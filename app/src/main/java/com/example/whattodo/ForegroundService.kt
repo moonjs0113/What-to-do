@@ -19,7 +19,7 @@ class ForegroundService() : Service() {
         private const val NOTIFICATION_CHANNEL_ID = "channel_id"
         private const val NOTIFICATION_ID = 1
         // 알림 간격
-        private const val INTERVAL_MILLIS = 60 * 1000L // 1시간
+        private const val INTERVAL_MILLIS = 60 * 1000L // 1분
         // 알림 대상이 되는 우선도 기준
         private const val PRIORITY_CRITERIA = 30
     }
@@ -43,8 +43,7 @@ class ForegroundService() : Service() {
             var todoList: ArrayList<ToDo>
 
             CoroutineScope(Dispatchers.IO).launch {
-                PersistenceService.share.registerContext(this@ForegroundService)
-                todoList = PersistenceService.share.getAllTodo(this@ForegroundService)
+                todoList = PersistenceService.share.getAllTodo()
                 withContext(Dispatchers.Main)
                 {
                     // 이 부분에서 todoList로 반복문 돌리면서 우선도 계산 -> 우선도가 특정 값 이상인 ToDo 객체만 모아서 알림 쏴주기
@@ -108,8 +107,7 @@ class ForegroundService() : Service() {
         var todoList: ArrayList<ToDo>
 
         CoroutineScope(Dispatchers.IO).launch {
-        PersistenceService.share.registerContext(this@ForegroundService)
-        todoList = PersistenceService.share.getAllTodo(this@ForegroundService)
+        todoList = PersistenceService.share.getAllTodo()
         withContext(Dispatchers.Main)
         {
             // 이 부분에서 todoList로 반복문 돌리면서 우선도 계산 -> 우선도가 특정 값 이상인 ToDo 객체만 모아서 알림 쏴주기
