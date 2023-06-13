@@ -11,32 +11,29 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:gravity="right"
+        android:gravity="center"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginVertical="12dp"
-        android:layout_marginBottom="6dp">
+        android:layout_marginTop="12dp"
+        >
         <Button
+            android:id="@+id/sortButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="지난 일정 보기"
+            android:text="중요도순"
             android:textColor="@color/black"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="12dp"
             />
 
-        <Button
+        <Switch
+            android:id="@+id/completeShowSwitch"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="지난 일정 보기"
-            android:textColor="@color/black"
+            android:layout_height="match_parent"
+            android:text="완료된 일정 보기"
+            android:layout_weight="1"
+            android:textAlignment="textEnd"
+            android:trackTint="@color/gray"
             />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="중요도"
-            android:textColor="@color/black"
-            android:drawableRight="@drawable/baseline_keyboard_arrow_down_24"
-            />
-
     </LinearLayout>
 
     <LinearLayout
@@ -44,7 +41,7 @@
         android:layout_height="40dp"
         android:orientation="horizontal"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginVertical="6dp"
+        android:layout_marginVertical="4dp"
         android:background="@drawable/searchbar_style"
         >
 

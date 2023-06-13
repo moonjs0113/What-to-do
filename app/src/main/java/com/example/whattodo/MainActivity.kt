@@ -12,6 +12,8 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.NumberPicker
 import android.widget.SeekBar
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.appcompat.app.AppCompatActivity
 import com.example.whattodo.databinding.ActivityMainBinding
 import com.example.whattodo.manager.Persistence.PersistenceService
@@ -26,28 +28,27 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     val textarr = arrayListOf<String>("우선도", "마감일", "검색", "환경설정")
-
-    // 입력폼 움직임을 위한 애니매이터
-    lateinit var animator: ObjectAnimator
-
     var deadline = LocalDateTime.now()
     var timeToSpendVal = 1
     var importanceVal = 5
+
+    var isInputFormOpen = false;
+
+
+    // 입력폼 움직임을 위한 애니매이터
+    lateinit var animator: ObjectAnimator
 
     // 수정인지 등록인지 표시하는 플래그
     var isAmend = false
     // 수정할 객체 id
     var idToAmend = 0
 
-    var isInputFormOpen = false;
-
-
     //    val imgarr = arrayListOf<Int>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        PersistenceService.share.testRoomManager(this)
+        PersistenceService.share.registerContext(this)
         layoutInit()
         startForegroundService()
     }
@@ -64,13 +65,13 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
     fun layoutInit() {
         binding.viewPager.adapter = MainViewPagerAdapter(this)
+        binding.viewPager.offscreenPageLimit = 3
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, pos ->
             tab.text = textarr[pos]
 //            tab.setIcon(imgarr[pos])
         }.attach()
 
         binding.apply {
-
             datePickedText.setText("${deadline.year}년 ${deadline.monthValue}월 ${deadline.dayOfMonth}일 ${deadline.hour}시 ${deadline.minute}분")
             var bottomBarHeight = 0
             val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -80,7 +81,6 @@ class MainActivity : AppCompatActivity() {
             println(bottomBarHeight)
             animator = ObjectAnimator.ofInt(todoInputForm, "layoutParams", 52+ bottomBarHeight, 700)
             animator.interpolator = AccelerateDecelerateInterpolator()
-
             animator.addUpdateListener { animation ->
                 val layoutParams = todoInputForm.layoutParams
                 layoutParams.height = animation.animatedValue as Int
@@ -187,6 +187,8 @@ class MainActivity : AppCompatActivity() {
                 importance.setText("$importanceVal/10")
                 seekBar.progress = 5
 
+                //등록시 토스트 메시지 출력
+                Toast.makeText(this@MainActivity, "일정 등록 완료", Toast.LENGTH_SHORT).show()
                 if(isInputFormOpen) {
                     animator.reverse()
                     isInputFormOpen = false

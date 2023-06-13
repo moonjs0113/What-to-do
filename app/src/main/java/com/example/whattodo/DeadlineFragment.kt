@@ -192,7 +192,7 @@ class DeadlineFragment : Fragment() {
                         // 삭제 작업 수행
                         CoroutineScope(Dispatchers.IO).launch{
                             PersistenceService.share.registerContext(mainActivity)
-                            var list2 = PersistenceService.share.getAllTodo(mainActivity)
+                            var list2 = PersistenceService.share.getAllTodo()
                             PersistenceService.share.deleteTodo(list2[position])
                         }
                         adapter.items.removeAt(position)
@@ -244,9 +244,8 @@ class DeadlineFragment : Fragment() {
 
     private fun filterListByDate() {
         fliteredList.clear()
-
         CoroutineScope(Dispatchers.IO).launch{
-            val list = PersistenceService.share.getAllTodo(mainActivity)
+            val list = PersistenceService.share.getAllTodo()
             withContext(Dispatchers.Main)
             {
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

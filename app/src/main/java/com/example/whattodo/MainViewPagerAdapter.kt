@@ -27,3 +27,8 @@ class MainViewPagerAdapter(fragmentActivity: FragmentActivity): FragmentStateAda
         }
     }
 }
+
+// main branch
+// -> $ git add .
+// -> $ git commit -m ""
+

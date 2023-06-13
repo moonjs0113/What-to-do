@@ -47,13 +47,13 @@ class PriorityFragment : Fragment() {
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                Log.d("onReceive", "onReceive")
+                Log.d("PriorityFragment", "onReceive")
                 if(intent != null)
                 {
                     if(intent.hasExtra("message")){
                         println("broadcast complete")
                         CoroutineScope(Dispatchers.IO).launch{
-                            adapter.items = PersistenceService.share.getAllTodo(mainActivity)
+                            adapter.items = PersistenceService.share.getAllTodo()
                             withContext(Dispatchers.Main)
                             {
                                 adapter.notifyDataSetChanged()
@@ -155,9 +155,7 @@ class PriorityFragment : Fragment() {
         binding.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
 
         CoroutineScope(Dispatchers.IO).launch{
-            PersistenceService.share.registerContext(mainActivity)
-            var list = PersistenceService.share.getAllTodo(mainActivity)
-
+            var list = PersistenceService.share.getAllTodo()
             withContext(Dispatchers.Main)
             {
                 adapter  = MyAdapter(list)
@@ -176,8 +174,7 @@ class PriorityFragment : Fragment() {
                             .setPositiveButton("삭제") { dialog, which ->
                                 // 삭제 작업 수행
                                 CoroutineScope(Dispatchers.IO).launch{
-                                    PersistenceService.share.registerContext(mainActivity)
-                                    var list2 = PersistenceService.share.getAllTodo(mainActivity)
+                                    var list2 = PersistenceService.share.getAllTodo()
                                     PersistenceService.share.deleteTodo(list2[position])
                                 }
                                 adapter.items.removeAt(position)

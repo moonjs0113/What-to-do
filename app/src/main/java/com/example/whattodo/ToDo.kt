@@ -24,17 +24,16 @@ data class ToDo(
     ): this(0, explanation, deadLine, time_taken, importance, priority)
 
     companion object {
-        private val dataformat = SimpleDateFormat("yyyy-MM-dd")
-        public var previewData =
+        var previewData =
             arrayListOf<ToDo>(
                 ToDo("example1", "2023-06-29T00:00", 12f, 5 , 0f) ,
-                ToDo("example1-1", "2023-06-29T00:00", 10f, 9, 0f) ,
-                ToDo("example1-2", "2023-06-30T00:00", 8f, 7, 0f) ,
-                ToDo("example1-3", "2023-07-31T00:00", 4f, 4, 0f) ,
-                ToDo("example2", "2023-07-01T00:00", 5f, 4, 5.0f),
-                ToDo("example3", "2023-07-04T00:00", 4f, 3, 3.0f),
-                ToDo("example4", "2023-07-15T00:00", 3f, 2,4.0f),
-                ToDo("example5", "2023-07-30T00:00", 1f, 1,4.0f)
+                ToDo("ㅋexample1-1", "2023-06-29T00:00", 10f, 9, 0f) ,
+                ToDo("Example1-2", "2023-06-30T00:00", 8f, 7, 0f) ,
+                ToDo("Aexample1-3", "2023-07-31T00:00", 4f, 4, 0f) ,
+                ToDo("d_example2", "2023-07-01T00:00", 5f, 4, 5.0f),
+                ToDo("-example3", "2023-07-04T00:00", 4f, 3, 3.0f),
+                ToDo("a-example4", "2023-07-15T00:00", 3f, 2,4.0f),
+                ToDo("5-example5", "2023-07-30T00:00", 1f, 1,4.0f)
             )
     }
 }

@@ -2,7 +2,6 @@ package com.example.whattodo
 
 import android.graphics.Color
 import android.util.Log
-import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +10,6 @@ import com.example.whattodo.manager.Persistence.toDate
 import com.example.whattodo.manager.Persistence.toLocalDateTime
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 import kotlin.Comparator
 

@@ -12,7 +12,9 @@ class RoomManager {
     /// Activity or Fragment가 변경될 때 호출하여 Context정보를 교체합니다.
     fun registerContext(context: Context) {
         this.context = context
-        todoDB = ToDoDatabase.getDatabase(context)
+        CoroutineScope(Dispatchers.IO).launch {
+            todoDB = ToDoDatabase.getDatabase(this@RoomManager.context)
+        }
     }
 
     fun getAllToDo(): ArrayList<ToDo> = todoDB.toDoDAO().getAllTodo() as ArrayList<ToDo>
