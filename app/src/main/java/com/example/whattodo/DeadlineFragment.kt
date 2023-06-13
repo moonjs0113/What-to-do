@@ -1,5 +1,6 @@
 package com.example.whattodo
 
+import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -177,6 +178,59 @@ class DeadlineFragment : Fragment() {
             }
         }
 
+        adapter.itemLongClickListener = object :MyAdapter.OnItemClickListener,
+            MyAdapter.OnLongItemClickListener {
+            override fun OnItemClick(position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun OnItemLongClick(position: Int): Boolean {
+                // Todo 객체 삭제
+                val builder = AlertDialog.Builder(mainActivity)
+                builder.setMessage("수정 또는 삭제하시겠습니까?")
+                    .setPositiveButton("삭제") { dialog, which ->
+                        // 삭제 작업 수행
+                        CoroutineScope(Dispatchers.IO).launch{
+                            PersistenceService.share.registerContext(mainActivity)
+                            var list2 = PersistenceService.share.getAllTodo()
+                            PersistenceService.share.deleteTodo(list2[position])
+                        }
+                        adapter.items.removeAt(position)
+                        adapter.notifyItemChanged(position)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("수정") { dialog, which ->
+                        // 수정
+                        mainActivity.binding.todoInput.setText(adapter.items[position].explanation)
+                        mainActivity.binding.timeToSpend.setText("${adapter.items[position].time_taken.toInt()}시간")
+                        val time = adapter.items[position].deadLine.split("T")
+                        mainActivity.binding.datePickedText.setText("${time[0].split("-")[0]}년 ${time[0].split("-")[1].toInt()}월 " +
+                                "${time[0].split("-")[2].toInt()}일 ${time[1].split(":")[0].toInt()}시 ${time[1].split(":")[1].toInt()}분")
+                        mainActivity.binding.importance.setText("${adapter.items[position].importance}/10")
+                        // 저장될 실제 값 바꾸기
+                        mainActivity.deadline = LocalDateTime.now()
+                        mainActivity.deadline = mainActivity.deadline.withYear(time[0].split("-")[0].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withMonth(time[0].split("-")[1].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withDayOfMonth(time[0].split("-")[2].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withHour(time[1].split(":")[0].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withMinute(time[1].split(":")[1].toInt())
+                        mainActivity.importanceVal = adapter.items[position].importance
+                        mainActivity.timeToSpendVal = adapter.items[position].time_taken.toInt()
+
+                        // 수정 모드로 변경 - 등록 버튼이 수정 버튼으로 변경. 수정 버튼을 누르기 전까지는 모드 해제 불가
+                        mainActivity.isAmend = true
+                        mainActivity.binding.registerBtn.text = "수정"
+                        mainActivity.idToAmend = adapter.items[position].id
+                        if(!mainActivity.isInputFormOpen) {
+                            mainActivity.animator.start()
+                        }
+                        dialog.dismiss()
+                    }
+                    .show()
+                return true
+            }
+        }
+
         //리사이클러뷰 초기설정
         binding!!.prioirtyRecyclerView.layoutManager = LinearLayoutManager(context)
         binding!!.prioirtyRecyclerView.adapter = this@DeadlineFragment.adapter
@@ -190,9 +244,8 @@ class DeadlineFragment : Fragment() {
 
     private fun filterListByDate() {
         fliteredList.clear()
-
         CoroutineScope(Dispatchers.IO).launch{
-            val list = PersistenceService.share.getAllTodo(mainActivity)
+            val list = PersistenceService.share.getAllTodo()
             withContext(Dispatchers.Main)
             {
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
