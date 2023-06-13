@@ -244,9 +244,8 @@ class DeadlineFragment : Fragment() {
 
     private fun filterListByDate() {
         fliteredList.clear()
-
         CoroutineScope(Dispatchers.IO).launch{
-            val list = PersistenceService.share.getAllTodo(mainActivity)
+            val list = PersistenceService.share.getAllTodo()
             withContext(Dispatchers.Main)
             {
                 val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

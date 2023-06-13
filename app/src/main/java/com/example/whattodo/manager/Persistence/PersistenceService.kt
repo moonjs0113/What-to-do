@@ -3,6 +3,7 @@ package com.example.whattodo.manager.Persistence
 import android.content.Context
 import com.example.whattodo.ToDo
 import com.example.whattodo.manager.room.RoomManager
+import com.example.whattodo.manager.Persistence.SharedPreferencesManager.PriorityItem
 
 class PersistenceService {
     private var sharedPreferencesManger = SharedPreferencesManager()
@@ -13,17 +14,30 @@ class PersistenceService {
     }
 
     // SharedPreferences
-//    fun get
+    fun getColorArray() : ArrayList<String> = sharedPreferencesManger.getColorCodeArray()
 
+    fun setColor(index: Int, colorCode: String) {
+        sharedPreferencesManger.setColorCode(index, colorCode)
+    }
+
+    fun getPriorityItem(): Triple<PriorityItem, Int, Int> = sharedPreferencesManger.getPriorityItem()
+
+    fun setPriorityItem(index: Int, priorityValue: Int, timeValue: Int) {
+        sharedPreferencesManger.setPriorityItem(PriorityItem.values()[index], priorityValue, timeValue)
+    }
+
+    fun getNotificationValue(): Boolean = sharedPreferencesManger.getNotificationValue()
+
+    fun setNotificationValue(isOn: Boolean) {
+        sharedPreferencesManger.setNotification(isOn)
+    }
     // Room
     fun registerContext(context: Context) {
         roomManager.registerContext(context)
-
+        sharedPreferencesManger.registerContext(context)
     }
 
-    fun getAllTodo(context: Context): ArrayList<ToDo> {
-        return roomManager.getAllToDo()
-    }
+    fun getAllTodo(): ArrayList<ToDo> = roomManager.getAllToDo()
 
     fun insertTodo(toDo: ToDo) {
         roomManager.insertToDo(toDo)
