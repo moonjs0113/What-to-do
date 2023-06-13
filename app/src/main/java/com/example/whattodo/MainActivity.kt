@@ -49,6 +49,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         PersistenceService.share.testRoomManager(this)
         layoutInit()
+        startForegroundService()
+    }
+
+    private fun startForegroundService() {
+        val intent = Intent(this, ForegroundService::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")

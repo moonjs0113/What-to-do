@@ -6,8 +6,8 @@ import com.example.whattodo.ToDo
 import kotlinx.coroutines.*
 
 class RoomManager {
-    private lateinit var todoDB: ToDoDatabase
-    private lateinit var context: Context
+    lateinit var todoDB: ToDoDatabase
+    lateinit var context: Context
 
     /// Activity or Fragment가 변경될 때 호출하여 Context정보를 교체합니다.
     fun registerContext(context: Context) {
