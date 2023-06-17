@@ -199,7 +199,6 @@ class MainActivity : AppCompatActivity() {
 
     fun sendBroadCastInMainActivity(intent : Intent)
     {
-        Log.d("sendBroadCastInMainActivity", intent.action.toString() + "  " +intent.getStringExtra("colorChanged1").toString() + "  " +  intent.getStringExtra("colorChanged2").toString()+ "  " + intent.getStringExtra("colorChanged3").toString() )
         sendBroadcast(intent)
     }
 

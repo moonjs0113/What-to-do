@@ -138,6 +138,7 @@ class DeadlineFragment : Fragment() {
         val intentFilter = IntentFilter("Todo added")
         intentFilter.addAction("color changed")
         intentFilter.addAction("calc changed")
+        intentFilter.addAction("todo Checked")
         requireActivity().registerReceiver(broadcastReceiver, intentFilter)
 
     }
@@ -159,22 +160,26 @@ class DeadlineFragment : Fragment() {
 
             filterListByDate()
 
-//            CoroutineScope(Dispatchers.IO).launch {
-//                var arrayList = PersistenceService.share.getAllTodo(requireContext())
-//                for(list in arrayList){
-//                    PersistenceService.share.deleteTodo(list)
-//                }
-//                for (i in ToDo.previewData){
-//                    PersistenceService.share.insertTodo(i)
-//                }
-//            }
         }
 
         //리스트 내의 아이템 클릭시 이벤트 처리
         //아직 미구현(뭘 하기로 했는지 기억이...)
         adapter.itemClickListener = object :MyAdapter.OnItemClickListener{
             override fun OnItemClick(position: Int) {
+                val newToDo = adapter.items[position]
+                newToDo.isComplete = !(newToDo.isComplete)
 
+                CoroutineScope(Dispatchers.IO).launch {
+                    PersistenceService.share.registerContext(mainActivity)
+                    // 수정 모드인 경우
+                    PersistenceService.share.updateTodo(newToDo)
+                    withContext(Dispatchers.Main)
+                    {
+                        val intent = Intent("Todo added");
+                        intent.putExtra("message","dataChanged");
+                        mainActivity.sendBroadCastInMainActivity(intent)
+                    }
+                }
             }
         }
 

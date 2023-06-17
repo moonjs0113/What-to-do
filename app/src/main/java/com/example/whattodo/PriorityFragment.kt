@@ -134,6 +134,7 @@ class PriorityFragment : Fragment() {
         val intentFilter = IntentFilter("Todo added")
         intentFilter.addAction("color changed")
         intentFilter.addAction("calc changed")
+        intentFilter.addAction("todo Checked")
         requireActivity().registerReceiver(broadcastReceiver, intentFilter)
     }
 
@@ -160,6 +161,25 @@ class PriorityFragment : Fragment() {
             {
                 adapter  = MyAdapter(list)
                 adapter.sortItemwithAscendingPriority()
+
+                adapter.itemClickListener = object :MyAdapter.OnItemClickListener{
+                    override fun OnItemClick(position: Int) {
+                        val newToDo = adapter.items[position]
+                        newToDo.isComplete = !(newToDo.isComplete)
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            PersistenceService.share.registerContext(mainActivity)
+                            // 수정 모드인 경우
+                            PersistenceService.share.updateTodo(newToDo)
+                            withContext(Dispatchers.Main)
+                            {
+                                val intent = Intent("Todo added");
+                                intent.putExtra("message","dataChanged");
+                                mainActivity.sendBroadCastInMainActivity(intent)
+                            }
+                        }
+                    }
+                }
 
                 adapter.itemLongClickListener = object :
                     MyAdapter.OnLongItemClickListener {

@@ -68,7 +68,8 @@ class SearchFragment : Fragment() {
                                 searchRecyclerAdapter.sortItemwithDescendingPriority()
                             }
                         }
-                    }else if(intent.hasExtra("colorChanged1"))
+                    }
+                    else if(intent.hasExtra("colorChanged1"))
                     {
                         val color1 = intent.getStringExtra("colorChanged1")!!
                         val color2 = intent.getStringExtra("colorChanged2")!!
@@ -175,9 +176,27 @@ class SearchFragment : Fragment() {
                 searchRecyclerAdapter  = MyAdapter(currentList)
                 searchRecyclerAdapter.sortItemwithAscendingPriority()
 
+                searchRecyclerAdapter.itemClickListener = object :MyAdapter.OnItemClickListener{
+                    override fun OnItemClick(position: Int) {
+                        val newToDo = searchRecyclerAdapter.items[position]
+                        newToDo.isComplete = !(newToDo.isComplete)
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            PersistenceService.share.registerContext(mainActivity)
+                            // 수정 모드인 경우
+                            PersistenceService.share.updateTodo(newToDo)
+                            withContext(Dispatchers.Main)
+                            {
+                                val intent = Intent("Todo added");
+                                intent.putExtra("message","dataChanged");
+                                mainActivity.sendBroadCastInMainActivity(intent)
+                            }
+                        }
+                    }
+                }
+
                 searchRecyclerAdapter.itemLongClickListener = object :
                     MyAdapter.OnLongItemClickListener {
-
                     override fun OnItemLongClick(position: Int): Boolean {
                         // Todo 객체 삭제
                         val builder = AlertDialog.Builder(mainActivity)
