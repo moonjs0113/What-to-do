@@ -132,18 +132,40 @@ class SettingFragment : Fragment() {
                 )
 
                 val intent = Intent("calc changed")
-                intent.putExtra("spareTimeScalar",priorityValue.third)
-                intent.putExtra("priorityScalar", priorityValue.second)
-                intent.putExtra("ifLeftTimeChecked",(priorityValue.first == PriorityItem.TIME))
+                intent.putExtra("spareTimeScalar",spareTimeScalar.value)
+                intent.putExtra("priorityScalar", priorityScalar.value)
+                intent.putExtra("ifLeftTimeChecked",leftTimePrefer.isChecked)
                 mainActivity.sendBroadCastInMainActivity(intent)
             }
 
         }
 
+        val priorityValue = PersistenceService.share.getPriorityItem()
+        val intent2 = Intent("calc changed")
+        intent2.putExtra("spareTimeScalar",priorityValue.third)
+        intent2.putExtra("priorityScalar", priorityValue.second)
+        intent2.putExtra("ifLeftTimeChecked",(priorityValue.first == PriorityItem.TIME))
+        mainActivity.sendBroadCastInMainActivity(intent2)
+
         binding.alramOk.isChecked = PersistenceService.share.getNotificationValue()
         binding.alramNo.isChecked = !(PersistenceService.share.getNotificationValue())
         binding.alramOk.setOnCheckedChangeListener { _, b ->
             PersistenceService.share.setNotificationValue(b)
+            if(b)
+            {
+                mainActivity.startForegroundService()
+            }else
+            {
+                mainActivity.stopForegroundService()
+            }
+        }
+
+        if(binding.alramOk.isChecked)
+        {
+            mainActivity.startForegroundService()
+        }else
+        {
+            mainActivity.stopForegroundService()
         }
 
         return binding.root
