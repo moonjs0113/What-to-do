@@ -170,7 +170,6 @@ class DeadlineFragment : Fragment() {
                 newToDo.isComplete = !(newToDo.isComplete)
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    PersistenceService.share.registerContext(mainActivity)
                     // 수정 모드인 경우
                     PersistenceService.share.updateTodo(newToDo)
                     withContext(Dispatchers.Main)
@@ -193,13 +192,18 @@ class DeadlineFragment : Fragment() {
                     .setPositiveButton("삭제") { dialog, which ->
                         // 삭제 작업 수행
                         CoroutineScope(Dispatchers.IO).launch{
-                            PersistenceService.share.registerContext(mainActivity)
                             var list2 = PersistenceService.share.getAllTodo()
                             PersistenceService.share.deleteTodo(list2[position])
+                            withContext(Dispatchers.Main)
+                            {
+                                val intent = Intent("Todo added");
+                                intent.putExtra("message","dataChanged");
+                                mainActivity.sendBroadCastInMainActivity(intent)
+
+                                dialog.dismiss()
+                            }
                         }
-                        adapter.items.removeAt(position)
-                        adapter.notifyItemChanged(position)
-                        dialog.dismiss()
+
                     }
                     .setNegativeButton("수정") { dialog, which ->
                         // 수정
