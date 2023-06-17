@@ -141,7 +141,6 @@ class PriorityFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         requireActivity().unregisterReceiver(broadcastReceiver)
-
     }
 
     override fun onCreateView(

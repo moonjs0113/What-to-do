@@ -27,6 +27,10 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+
+    var isForeGroundServiceValid = false
+    lateinit var foregroundService: Intent
+
     val textarr = arrayListOf<String>("우선도", "마감일", "검색", "환경설정")
     var deadline = LocalDateTime.now()
     var timeToSpendVal = 1
@@ -50,16 +54,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         PersistenceService.share.registerContext(this)
         layoutInit()
-        startForegroundService()
     }
 
-    private fun startForegroundService() {
-        val intent = Intent(this, ForegroundService::class.java)
+    fun startForegroundService() {
+        foregroundService = Intent(this, ForegroundService::class.java)
+
+        isForeGroundServiceValid = true
+
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            startForegroundService(intent)
+            startForegroundService(foregroundService)
         } else {
-            startService(intent)
+            startService(foregroundService)
         }
+    }
+
+    fun stopForegroundService() {
+        if(isForeGroundServiceValid)
+        {
+            stopService(foregroundService)
+        }
+        isForeGroundServiceValid = false
     }
 
     @SuppressLint("ObjectAnimatorBinding", "MissingInflatedId", "ResourceType")
