@@ -175,11 +175,8 @@ class SearchFragment : Fragment() {
                 searchRecyclerAdapter  = MyAdapter(currentList)
                 searchRecyclerAdapter.sortItemwithAscendingPriority()
 
-                searchRecyclerAdapter.itemLongClickListener = object :MyAdapter.OnItemClickListener,
+                searchRecyclerAdapter.itemLongClickListener = object :
                     MyAdapter.OnLongItemClickListener {
-                    override fun OnItemClick(position: Int) {
-                        TODO("Not yet implemented")
-                    }
 
                     override fun OnItemLongClick(position: Int): Boolean {
                         // Todo 객체 삭제
@@ -262,13 +259,34 @@ class SearchFragment : Fragment() {
                 }
             )
             dialogViewBinding.applyButton.setOnClickListener {
+
+                var flag = 0
                 sortedValue = SortValue.values()[when(dialogViewBinding.radioGroup.checkedRadioButtonId) {
-                    dialogViewBinding.prioritySortButton.id -> 0
-                    dialogViewBinding.deadLineSortButton.id -> 1
-                    dialogViewBinding.timeCostSortButton.id -> 2
-                    else -> 0
+                    dialogViewBinding.prioritySortButton.id ->{
+                        flag = 0
+                        0
+                    }
+                    dialogViewBinding.deadLineSortButton.id ->{
+                        flag = 1
+                        1
+                    }
+                    dialogViewBinding.timeCostSortButton.id -> {
+                        flag = 2
+                        2
+                    }
+                    else -> {
+                        flag = 0
+                        0
+                    }
                 }]
                 viewBinding.sortButton.text = sortedValue.title
+
+                when(flag) {
+                    0 -> searchRecyclerAdapter.sortItemwithDescendingPriority()
+                    1 -> searchRecyclerAdapter.sortItemwithDescendingDeadLine()
+                    2 -> searchRecyclerAdapter.sortItemwithDescendingTimeTaken()
+                }
+
                 dialog.dismiss()
             }
             dialogViewBinding.cancelButton.setOnClickListener {
@@ -277,6 +295,7 @@ class SearchFragment : Fragment() {
 
             dialog.show()
         }
+
         viewBinding.completeShowSwitch.setOnCheckedChangeListener { _, b ->
 
         }

@@ -161,11 +161,8 @@ class PriorityFragment : Fragment() {
                 adapter  = MyAdapter(list)
                 adapter.sortItemwithAscendingPriority()
 
-                adapter.itemLongClickListener = object :MyAdapter.OnItemClickListener,
+                adapter.itemLongClickListener = object :
                     MyAdapter.OnLongItemClickListener {
-                    override fun OnItemClick(position: Int) {
-                        TODO("Not yet implemented")
-                    }
 
                     override fun OnItemLongClick(position: Int): Boolean {
                         // Todo 객체 삭제
