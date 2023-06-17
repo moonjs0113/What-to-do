@@ -22,7 +22,7 @@ import kotlin.Comparator
 // 확장성 기능 3 : recyclerView의 클락 시의 행동을 바꾸고 싶은 경우에는 adapter.itemClickListener = object : 형식으로 OnItemClickListener 익명 객체를 넣어주세요
 // 확장성 기능 4 : recyclerView의 긴 클릭 시의 행동을 바꾸고 싶은 경우에는 adapter.itemLongClickListener = object : 형식으로 OnLongItemClickListener 익명 객체를 넣어주세요
 
-class MyAdapter(var items:ArrayList<ToDo>)
+class MyAdapter(var items: ArrayList<ToDo>)
     : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
 

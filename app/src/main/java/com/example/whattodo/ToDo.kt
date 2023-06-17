@@ -12,7 +12,8 @@ data class ToDo(
     @ColumnInfo(name = "deadLine") var deadLine: String,
     @ColumnInfo(name = "timeTaken") var time_taken: Float,
     @ColumnInfo(name = "importance") var importance: Int,
-    @ColumnInfo(name = "priority") var priority: Float
+    @ColumnInfo(name = "priority") var priority: Float,
+    @ColumnInfo(name = "isComplete") var isComplete: Boolean
     ) {
 
     constructor(
@@ -21,7 +22,7 @@ data class ToDo(
         time_taken: Float,
         importance: Int,
         priority: Float
-    ): this(0, explanation, deadLine, time_taken, importance, priority)
+    ): this(0, explanation, deadLine, time_taken, importance, priority, false)
 
     companion object {
         var previewData =

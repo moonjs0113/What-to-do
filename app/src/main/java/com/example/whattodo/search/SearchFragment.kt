@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whattodo.MainActivity
@@ -16,6 +17,7 @@ import com.example.whattodo.ToDo
 import com.example.whattodo.databinding.DialogSortBinding
 import com.example.whattodo.databinding.FragmentPriorityBinding
 import com.example.whattodo.databinding.FragmentSearchBinding
+import java.util.Locale.filter
 import java.util.Objects
 
 class SearchFragment : Fragment() {
@@ -60,9 +62,15 @@ class SearchFragment : Fragment() {
     }
 
     private fun setLayoutListener() {
-        viewBinding.searchEditText.setOnEditorActionListener { textView, i, keyEvent ->
-
-            true
+        viewBinding.searchEditText.addTextChangedListener {
+            searchRecyclerAdapter.items =
+                if
+                        (it.toString().isBlank()) ToDo.previewData
+                else
+                    ToDo.previewData.filter { todo ->
+                        todo.explanation.contains(it.toString())
+                    } as ArrayList
+            searchRecyclerAdapter.notifyDataSetChanged()
         }
         viewBinding.sortButton.setOnClickListener {
             val dialogViewBinding = DialogSortBinding.inflate(layoutInflater)
