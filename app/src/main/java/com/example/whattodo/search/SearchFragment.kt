@@ -206,10 +206,15 @@ class SearchFragment : Fragment() {
                                 CoroutineScope(Dispatchers.IO).launch{
                                     var list2 = PersistenceService.share.getAllTodo()
                                     PersistenceService.share.deleteTodo(list2[position])
+                                    withContext(Dispatchers.Main)
+                                    {
+                                        val intent = Intent("Todo added");
+                                        intent.putExtra("message","dataChanged");
+                                        mainActivity.sendBroadCastInMainActivity(intent)
+
+                                        dialog.dismiss()
+                                    }
                                 }
-                                searchRecyclerAdapter.items.removeAt(position)
-                                searchRecyclerAdapter.notifyItemChanged(position)
-                                dialog.dismiss()
                             }
                             .setNegativeButton("수정") { dialog, which ->
                                 // 수정

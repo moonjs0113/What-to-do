@@ -192,10 +192,15 @@ class PriorityFragment : Fragment() {
                                 CoroutineScope(Dispatchers.IO).launch{
                                     var list2 = PersistenceService.share.getAllTodo()
                                     PersistenceService.share.deleteTodo(list2[position])
+                                    withContext(Dispatchers.Main)
+                                    {
+                                        val intent = Intent("Todo added");
+                                        intent.putExtra("message","dataChanged");
+                                        mainActivity.sendBroadCastInMainActivity(intent)
+
+                                        dialog.dismiss()
+                                    }
                                 }
-                                adapter.items.removeAt(position)
-                                adapter.notifyItemChanged(position)
-                                dialog.dismiss()
                             }
                             .setNegativeButton("수정") { dialog, which ->
                                 // 수정
