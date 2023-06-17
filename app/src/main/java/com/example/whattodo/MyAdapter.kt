@@ -13,18 +13,8 @@ import java.time.LocalDateTime
 import java.util.*
 import kotlin.Comparator
 
-// 확장성 기능 1 : recyclerView의 우선도 색깔을 바꾸고 싶은 경우에는 adapter.setPriorityColor()로 설정 해 주세요
-
-// 확장성 기능 2 : recyclerView의 우선도 공식을 바꾸고 싶은 경우에는 adapter.calculatePriorityListener = object : 형식으로 OnCalculatePriorityListener 익명 객체를 넣어주세요
-/////////////// 우선도를 바꾼 뒤에는 notifyDataSetChanged을 불러주세요!! /////////////////
-
-
-// 확장성 기능 3 : recyclerView의 클락 시의 행동을 바꾸고 싶은 경우에는 adapter.itemClickListener = object : 형식으로 OnItemClickListener 익명 객체를 넣어주세요
-// 확장성 기능 4 : recyclerView의 긴 클릭 시의 행동을 바꾸고 싶은 경우에는 adapter.itemLongClickListener = object : 형식으로 OnLongItemClickListener 익명 객체를 넣어주세요
-
 class MyAdapter(var items: ArrayList<ToDo>)
     : RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
-
 
     //각각 빨간색, 노란색, 초록색을 담고 있습니다
     // 만약 색깔을 바꾸고 싶다면 이 arrayList 의 값을 바꿔주면 그 색깔이 반영이 됩니다
@@ -83,6 +73,46 @@ class MyAdapter(var items: ArrayList<ToDo>)
         notifyDataSetChanged()
     }
 
+    fun sortItemwithDescendingDeadLine()
+    {
+        val comparator: Comparator<ToDo> = object : Comparator<ToDo> {
+            override fun compare(o1: ToDo?, o2: ToDo?): Int {
+                return if(o1!!.deadLine.toLocalDateTime().isBefore(o2!!.deadLine.toLocalDateTime())) {
+                    -1
+                }else if(o1!!.deadLine.toLocalDateTime().isAfter(o2!!.deadLine.toLocalDateTime())) {
+                    1
+                }else {
+                    0
+                }
+            }
+
+        }
+
+        items.sortWith(comparator)
+
+        notifyDataSetChanged()
+    }
+
+    fun sortItemwithDescendingTimeTaken()
+    {
+        val comparator: Comparator<ToDo> = object : Comparator<ToDo> {
+            override fun compare(o1: ToDo?, o2: ToDo?): Int {
+                return if(o1!!.time_taken < o2!!.time_taken ) {
+                    -1
+                }else if(o1!!.time_taken > o2!!.time_taken) {
+                    1
+                }else {
+                    0
+                }
+            }
+
+        }
+
+        items.sortWith(comparator)
+
+        notifyDataSetChanged()
+    }
+
     fun CalcItemsPrority()
     {
         for(item in items)
@@ -116,7 +146,8 @@ class MyAdapter(var items: ArrayList<ToDo>)
 
     var itemClickListener: OnItemClickListener? = object : MyAdapter.OnItemClickListener{
         override fun OnItemClick(position: Int) {
-            /////////////// data class에 flag가 생기면 그걸 바꿔주는 역할을 한다 ///////////////////////
+            items[position].isComplete = !(items[position].isComplete)
+            notifyDataSetChanged()
         }
 
     }
@@ -135,7 +166,7 @@ class MyAdapter(var items: ArrayList<ToDo>)
             } else {                -0.00001f
 
             }
-            
+
             val urgencyFactor = item.time_taken / remainingTime * 100
             val priorityScore = urgencyFactor + item.importance * 5
 
@@ -172,7 +203,15 @@ class MyAdapter(var items: ArrayList<ToDo>)
         holder.binding.deadLineDate.text = items[position].deadLine.substring(5,10)
         holder.binding.timeTaken.text = "소요시간: " + items[position].time_taken.toString()
 
-        /////////////// data class에 flag가 생기면 그걸 보고 완료 처리로 표기할지 아닌지를 확인한다 ///////////////////////
+        if(items[position].isComplete)
+        {
+            holder.binding.priorityImageView.setColorFilter(Color.TRANSPARENT)
+            holder.binding.deadLine.text = "완료!"
+            holder.binding.deadLine.setTextColor(Color.BLUE)
+            return
+        }
+
+        holder.binding.deadLine.setTextColor(Color.BLACK)
 
         // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
         val calDate: Long = items[position].deadLine.toDate().getTime() - Date(System.currentTimeMillis()).getTime()
@@ -215,7 +254,7 @@ class MyAdapter(var items: ArrayList<ToDo>)
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[0]}"))
         }else if(priority > 10)
         {
-            val priorityGap = priority - 20
+            val priorityGap = priority - 10
             var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 156 + 100).toInt())
 
             if(hex.length == 1)
