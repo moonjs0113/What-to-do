@@ -36,10 +36,10 @@ class SearchFragment : Fragment() {
     lateinit var viewBinding: FragmentSearchBinding
     lateinit var searchRecyclerAdapter: MyAdapter
     lateinit var mainActivity: MainActivity
-
     lateinit var broadcastReceiver: BroadcastReceiver
 
-    lateinit var currentList : java.util.ArrayList<ToDo>
+    var currentList = ArrayList<ToDo>()
+    var sortedValue = SortValue.PRIORITY
 
     enum class SortValue(val title: String) {
         PRIORITY("중요도순"),
@@ -47,11 +47,18 @@ class SearchFragment : Fragment() {
         TIMECOST("소요시간순")
     }
 
-    var sortedValue = SortValue.PRIORITY
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
+        CoroutineScope(Dispatchers.IO).launch {
+            currentList = PersistenceService.share.getAllTodo()
+            if (currentList.count() < 4) {
+                ToDo.previewData.forEach {
+                    currentList.add(it)
+                    PersistenceService.share.insertTodo(it)
+                }
+            }
+        }
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -59,7 +66,6 @@ class SearchFragment : Fragment() {
                 {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
-                            currentList = PersistenceService.share.getAllTodo()
                             searchRecyclerAdapter.items = currentList
                             withContext(Dispatchers.Main)
                             {
@@ -148,7 +154,6 @@ class SearchFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         requireActivity().unregisterReceiver(broadcastReceiver)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,104 +173,89 @@ class SearchFragment : Fragment() {
 
     private fun setupRecyclerView() {
         viewBinding.searchRecyclerView.layoutManager = LinearLayoutManager(context)
+        searchRecyclerAdapter = MyAdapter(currentList)
+        fetchTodoData()
 
-        CoroutineScope(Dispatchers.IO).launch{
-            currentList = PersistenceService.share.getAllTodo()
-            withContext(Dispatchers.Main)
-            {
-                searchRecyclerAdapter  = MyAdapter(currentList)
-                searchRecyclerAdapter.sortItemwithAscendingPriority()
+        searchRecyclerAdapter.itemClickListener = object :MyAdapter.OnItemClickListener{
+            override fun OnItemClick(position: Int) {
+                val newToDo = searchRecyclerAdapter.items[position]
+                newToDo.isComplete = !(newToDo.isComplete)
 
-                searchRecyclerAdapter.itemClickListener = object :MyAdapter.OnItemClickListener{
-                    override fun OnItemClick(position: Int) {
-                        val newToDo = searchRecyclerAdapter.items[position]
-                        newToDo.isComplete = !(newToDo.isComplete)
+                CoroutineScope(Dispatchers.IO).launch {
+//                    PersistenceService.share.registerContext(mainActivity)
+                    // 수정 모드인 경우
+                    PersistenceService.share.updateTodo(newToDo)
+                    withContext(Dispatchers.Main)
+                    {
+                        val intent = Intent("Todo added");
+                        intent.putExtra("message","dataChanged");
+                        mainActivity.sendBroadCastInMainActivity(intent)
+                    }
+                }
+            }
+        }
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            PersistenceService.share.registerContext(mainActivity)
-                            // 수정 모드인 경우
-                            PersistenceService.share.updateTodo(newToDo)
+        searchRecyclerAdapter.itemLongClickListener = object :
+            MyAdapter.OnLongItemClickListener {
+            override fun OnItemLongClick(position: Int): Boolean {
+                // Todo 객체 삭제
+                val builder = AlertDialog.Builder(mainActivity)
+                builder.setMessage("수정 또는 삭제하시겠습니까?")
+                    .setPositiveButton("삭제") { dialog, which ->
+                        // 삭제 작업 수행
+                        CoroutineScope(Dispatchers.IO).launch{
+                            var list2 = PersistenceService.share.getAllTodo()
+                            PersistenceService.share.deleteTodo(list2[position])
                             withContext(Dispatchers.Main)
                             {
                                 val intent = Intent("Todo added");
                                 intent.putExtra("message","dataChanged");
                                 mainActivity.sendBroadCastInMainActivity(intent)
+
+                                dialog.dismiss()
                             }
                         }
                     }
-                }
+                    .setNegativeButton("수정") { dialog, which ->
+                        // 수정
+                        mainActivity.binding.todoInput.setText(searchRecyclerAdapter.items[position].explanation)
+                        mainActivity.binding.timeToSpend.setText("${searchRecyclerAdapter.items[position].time_taken.toInt()}시간")
+                        val time = searchRecyclerAdapter.items[position].deadLine.split("T")
+                        mainActivity.binding.datePickedText.setText("${time[0].split("-")[0]}년 ${time[0].split("-")[1].toInt()}월 " +
+                                "${time[0].split("-")[2].toInt()}일 ${time[1].split(":")[0].toInt()}시 ${time[1].split(":")[1].toInt()}분")
+                        mainActivity.binding.importance.setText("${searchRecyclerAdapter.items[position].importance}/10")
+                        // 저장될 실제 값 바꾸기
+                        mainActivity.deadline = LocalDateTime.now()
+                        mainActivity.deadline = mainActivity.deadline.withYear(time[0].split("-")[0].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withMonth(time[0].split("-")[1].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withDayOfMonth(time[0].split("-")[2].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withHour(time[1].split(":")[0].toInt())
+                        mainActivity.deadline = mainActivity.deadline.withMinute(time[1].split(":")[1].toInt())
+                        mainActivity.importanceVal = searchRecyclerAdapter.items[position].importance
+                        mainActivity.timeToSpendVal = searchRecyclerAdapter.items[position].time_taken.toInt()
 
-                searchRecyclerAdapter.itemLongClickListener = object :
-                    MyAdapter.OnLongItemClickListener {
-                    override fun OnItemLongClick(position: Int): Boolean {
-                        // Todo 객체 삭제
-                        val builder = AlertDialog.Builder(mainActivity)
-                        builder.setMessage("수정 또는 삭제하시겠습니까?")
-                            .setPositiveButton("삭제") { dialog, which ->
-                                // 삭제 작업 수행
-                                CoroutineScope(Dispatchers.IO).launch{
-                                    var list2 = PersistenceService.share.getAllTodo()
-                                    PersistenceService.share.deleteTodo(list2[position])
-                                    withContext(Dispatchers.Main)
-                                    {
-                                        val intent = Intent("Todo added");
-                                        intent.putExtra("message","dataChanged");
-                                        mainActivity.sendBroadCastInMainActivity(intent)
-
-                                        dialog.dismiss()
-                                    }
-                                }
-                            }
-                            .setNegativeButton("수정") { dialog, which ->
-                                // 수정
-                                mainActivity.binding.todoInput.setText(searchRecyclerAdapter.items[position].explanation)
-                                mainActivity.binding.timeToSpend.setText("${searchRecyclerAdapter.items[position].time_taken.toInt()}시간")
-                                val time = searchRecyclerAdapter.items[position].deadLine.split("T")
-                                mainActivity.binding.datePickedText.setText("${time[0].split("-")[0]}년 ${time[0].split("-")[1].toInt()}월 " +
-                                        "${time[0].split("-")[2].toInt()}일 ${time[1].split(":")[0].toInt()}시 ${time[1].split(":")[1].toInt()}분")
-                                mainActivity.binding.importance.setText("${searchRecyclerAdapter.items[position].importance}/10")
-                                // 저장될 실제 값 바꾸기
-                                mainActivity.deadline = LocalDateTime.now()
-                                mainActivity.deadline = mainActivity.deadline.withYear(time[0].split("-")[0].toInt())
-                                mainActivity.deadline = mainActivity.deadline.withMonth(time[0].split("-")[1].toInt())
-                                mainActivity.deadline = mainActivity.deadline.withDayOfMonth(time[0].split("-")[2].toInt())
-                                mainActivity.deadline = mainActivity.deadline.withHour(time[1].split(":")[0].toInt())
-                                mainActivity.deadline = mainActivity.deadline.withMinute(time[1].split(":")[1].toInt())
-                                mainActivity.importanceVal = searchRecyclerAdapter.items[position].importance
-                                mainActivity.timeToSpendVal = searchRecyclerAdapter.items[position].time_taken.toInt()
-
-                                // 수정 모드로 변경 - 등록 버튼이 수정 버튼으로 변경. 수정 버튼을 누르기 전까지는 모드 해제 불가
-                                mainActivity.isAmend = true
-                                mainActivity.binding.registerBtn.text = "수정"
-                                mainActivity.idToAmend = searchRecyclerAdapter.items[position].id
-                                if(!mainActivity.isInputFormOpen) {
-                                    mainActivity.animator.start()
-                                }
-                                dialog.dismiss()
-                            }
-                            .show()
-                        return true
+                        // 수정 모드로 변경 - 등록 버튼이 수정 버튼으로 변경. 수정 버튼을 누르기 전까지는 모드 해제 불가
+                        mainActivity.isAmend = true
+                        mainActivity.binding.registerBtn.text = "수정"
+                        mainActivity.idToAmend = searchRecyclerAdapter.items[position].id
+                        if(!mainActivity.isInputFormOpen) {
+                            mainActivity.animator.start()
+                        }
+                        dialog.dismiss()
                     }
-                }
-
-                searchRecyclerAdapter.CalcItemsPrority()
-                searchRecyclerAdapter.sortItemwithDescendingPriority()
-                viewBinding.searchRecyclerView.adapter = searchRecyclerAdapter
-
+                    .show()
+                return true
             }
         }
+
+        searchRecyclerAdapter.CalcItemsPrority()
+        searchRecyclerAdapter.sortItemwithDescendingPriority()
+        viewBinding.searchRecyclerView.adapter = searchRecyclerAdapter
     }
 
     private fun setLayoutListener() {
         viewBinding.searchEditText.addTextChangedListener {
-            searchRecyclerAdapter.items =
-                if
-                        (it.toString().isBlank()) currentList
-                else
-                    currentList.filter { todo ->
-                        todo.explanation.contains(it.toString())
-                    } as ArrayList
-            searchRecyclerAdapter.notifyDataSetChanged()
+            fetchTodoData()
         }
         viewBinding.sortButton.setOnClickListener {
             val dialogViewBinding = DialogSortBinding.inflate(layoutInflater)
@@ -282,37 +272,20 @@ class SearchFragment : Fragment() {
                     SortValue.TIMECOST -> dialogViewBinding.timeCostSortButton.id
                 }
             )
+
             dialogViewBinding.applyButton.setOnClickListener {
-
-                var flag = 0
-                sortedValue = SortValue.values()[when(dialogViewBinding.radioGroup.checkedRadioButtonId) {
-                    dialogViewBinding.prioritySortButton.id ->{
-                        flag = 0
-                        0
-                    }
-                    dialogViewBinding.deadLineSortButton.id ->{
-                        flag = 1
-                        1
-                    }
-                    dialogViewBinding.timeCostSortButton.id -> {
-                        flag = 2
-                        2
-                    }
-                    else -> {
-                        flag = 0
-                        0
-                    }
-                }]
-                viewBinding.sortButton.text = sortedValue.title
-
-                when(flag) {
-                    0 -> searchRecyclerAdapter.sortItemwithDescendingPriority()
-                    1 -> searchRecyclerAdapter.sortItemwithDescendingDeadLine()
-                    2 -> searchRecyclerAdapter.sortItemwithDescendingTimeTaken()
+                sortedValue = when(dialogViewBinding.radioGroup.checkedRadioButtonId) {
+                    dialogViewBinding.prioritySortButton.id -> SortValue.PRIORITY
+                    dialogViewBinding.deadLineSortButton.id -> SortValue.DEADLINE
+                    dialogViewBinding.timeCostSortButton.id -> SortValue.TIMECOST
+                    else -> SortValue.PRIORITY
                 }
 
+                viewBinding.sortButton.text = sortedValue.title
+                fetchTodoData()
                 dialog.dismiss()
             }
+
             dialogViewBinding.cancelButton.setOnClickListener {
                 dialog.dismiss()
             }
@@ -321,8 +294,36 @@ class SearchFragment : Fragment() {
         }
 
         viewBinding.completeShowSwitch.setOnCheckedChangeListener { _, b ->
-
+            fetchTodoData()
         }
     }
 
+    private fun fetchTodoData() {
+        CoroutineScope(Dispatchers.IO).launch {
+            currentList = PersistenceService.share.getAllTodo()
+
+            // 키워드
+            val keyword = viewBinding.searchEditText.text.toString()
+            if (!keyword.isBlank()) {
+                currentList = currentList.filter { todo ->
+                    todo.explanation.contains(keyword)
+                } as ArrayList
+            }
+
+            // 완료 여부
+            val isShowCompleteTodo = viewBinding.completeShowSwitch.isChecked
+            currentList = currentList.filter { todo ->
+                ((!todo.isComplete) || isShowCompleteTodo)
+            } as ArrayList
+
+            searchRecyclerAdapter.items = currentList
+            withContext(Dispatchers.Main) {
+                when (sortedValue) {
+                    SortValue.PRIORITY -> searchRecyclerAdapter.sortItemWithDescendingImportance()
+                    SortValue.DEADLINE -> searchRecyclerAdapter.sortItemwithDescendingDeadLine()
+                    SortValue.TIMECOST -> searchRecyclerAdapter.sortItemwithDescendingTimeTaken()
+                }
+            }
+        }
+    }
 }
