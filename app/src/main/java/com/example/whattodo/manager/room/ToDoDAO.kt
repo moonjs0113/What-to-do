@@ -17,6 +17,7 @@ interface ToDoDAO {
     @Query("SELECT * FROM todos")
     fun getAllTodo(): List<ToDo>
 
+
     @Query("SELECT * FROM todos WHERE explanation LIKE '%' || :keyword || '%'")
     fun findToDo(keyword: String): List<ToDo>
 }

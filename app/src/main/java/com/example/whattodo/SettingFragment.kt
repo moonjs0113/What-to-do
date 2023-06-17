@@ -56,6 +56,12 @@ class SettingFragment : Fragment() {
         binding.changeColor2.setBackgroundColor(Color.parseColor( "#" + colorList[1]))
         binding.changeColor3.setBackgroundColor(Color.parseColor( "#" + colorList[2]))
 
+        val intent = Intent("color changed")
+        intent.putExtra("colorChanged1",colorList[0])
+        intent.putExtra("colorChanged2",colorList[1])
+        intent.putExtra("colorChanged3",colorList[2])
+        mainActivity.sendBroadCastInMainActivity(intent)
+
         binding.changeColor1.setOnClickListener(
             object : OnClickListener{
                 override fun onClick(v: View?) {
