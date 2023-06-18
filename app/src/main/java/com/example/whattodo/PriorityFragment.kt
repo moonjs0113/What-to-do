@@ -190,8 +190,7 @@ class PriorityFragment : Fragment() {
                             .setPositiveButton("삭제") { dialog, which ->
                                 // 삭제 작업 수행
                                 CoroutineScope(Dispatchers.IO).launch{
-                                    var list2 = PersistenceService.share.getAllTodo()
-                                    PersistenceService.share.deleteTodo(list2[position])
+                                    PersistenceService.share.deleteTodo(adapter.items[position])
                                     withContext(Dispatchers.Main)
                                     {
                                         val intent = Intent("Todo added");
