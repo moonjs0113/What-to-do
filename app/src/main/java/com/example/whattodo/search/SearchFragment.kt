@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,15 +51,6 @@ class SearchFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
-        CoroutineScope(Dispatchers.IO).launch {
-            currentList = PersistenceService.share.getAllTodo()
-            if (currentList.count() < 4) {
-                ToDo.previewData.forEach {
-                    currentList.add(it)
-                    PersistenceService.share.insertTodo(it)
-                }
-            }
-        }
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -66,12 +58,11 @@ class SearchFragment : Fragment() {
                 {
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
+                            Log.d("broadCast here","broadCast here")
                             searchRecyclerAdapter.items = currentList
                             withContext(Dispatchers.Main)
                             {
-                                searchRecyclerAdapter.notifyDataSetChanged()
-                                searchRecyclerAdapter.CalcItemsPrority()
-                                searchRecyclerAdapter.sortItemwithDescendingPriority()
+                                fetchTodoData()
                             }
                         }
                     }
@@ -317,6 +308,7 @@ class SearchFragment : Fragment() {
             } as ArrayList
 
             searchRecyclerAdapter.items = currentList
+            searchRecyclerAdapter.CalcItemsPrority()
             withContext(Dispatchers.Main) {
                 when (sortedValue) {
                     SortValue.PRIORITY -> searchRecyclerAdapter.sortItemWithDescendingImportance()
