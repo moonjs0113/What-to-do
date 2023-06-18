@@ -20,6 +20,9 @@ import com.example.whattodo.manager.Persistence.PersistenceService
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.example.whattodo.manager.Persistence.SharedPreferencesManager.PriorityItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -168,6 +171,44 @@ class SettingFragment : Fragment() {
             mainActivity.stopForegroundService()
         }
 
+        binding.deleteComplete.setOnClickListener {
+            showAlertDialog("완료된 일정 삭제","완료된 일정이 모두 삭제됩니다.\n삭제하시겠습니까?\n(이 작업은 되될릴 수 없습니다.)") {
+                CoroutineScope(Dispatchers.IO).launch {
+                    PersistenceService.share.deleteCompletedTodo()
+                    val intent = Intent("Todo added");
+                    intent.putExtra("message","dataChanged");
+                    mainActivity.sendBroadCastInMainActivity(intent)
+                }
+            }
+        }
+
+        binding.initializeButton.setOnClickListener {
+            showAlertDialog("앱 초기화","완료된 일정이 모두 삭제되며, 모든 값들이 초기값으로 전환됩니다.\n초기화 하시겠습니까?\n(이 작업은 되될릴 수 없습니다.)") {
+                CoroutineScope(Dispatchers.IO).launch {
+                    PersistenceService.share.clearAppData()
+
+                    var colorList = PersistenceService.share.getColorArray()
+                    val intent = Intent("color changed")
+                    intent.putExtra("colorChanged1",colorList[0])
+                    intent.putExtra("colorChanged2",colorList[1])
+                    intent.putExtra("colorChanged3",colorList[2])
+                    mainActivity.sendBroadCastInMainActivity(intent)
+
+                    val priorityValue = PersistenceService.share.getPriorityItem()
+                    val intent2 = Intent("calc changed")
+                    intent2.putExtra("spareTimeScalar",priorityValue.third)
+                    intent2.putExtra("priorityScalar", priorityValue.second)
+                    intent2.putExtra("ifLeftTimeChecked",(priorityValue.first == PriorityItem.TIME))
+                    mainActivity.sendBroadCastInMainActivity(intent2)
+
+                    val intent3 = Intent("Todo added");
+                    intent3.putExtra("message","dataChanged");
+                    mainActivity.sendBroadCastInMainActivity(intent3)
+                }
+            }
+
+        }
+
         return binding.root
     }
 
@@ -194,6 +235,20 @@ class SettingFragment : Fragment() {
             .attachBrightnessSlideBar(true) // the default value is true.
             .setBottomSpace(12) // set a bottom space between the last slidebar and buttons.
             .show()
+    }
+
+    fun showAlertDialog(title: String, message: String, positiveHandler: () -> Unit) {
+        val alertDialogBuilder = AlertDialog.Builder(context)
+        alertDialogBuilder.setMessage(message)
+            .setTitle(title)
+            .setPositiveButton("OK") { _, _ ->
+                positiveHandler()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
     }
 
 

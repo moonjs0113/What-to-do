@@ -189,7 +189,7 @@ class MyAdapter(var items: ArrayList<ToDo>)
             }
 
             val urgencyFactor = item.time_taken / remainingTime * 100
-            val priorityScore = urgencyFactor + item.importance * 5
+            val priorityScore = urgencyFactor + item.importance * 10
 
             return priorityScore
         }

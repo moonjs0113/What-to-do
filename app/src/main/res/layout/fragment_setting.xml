@@ -70,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20sp"
             android:orientation="horizontal"
             >
             <TextView
@@ -123,6 +124,7 @@
             android:orientation="horizontal"
             android:gravity="right"
             android:layout_marginHorizontal="15sp"
+            android:layout_marginBottom="20sp"
             >
             <RadioButton
                 android:id="@+id/alramOk"
@@ -152,6 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="완료된 할 일 지우기"
+            android:layout_marginBottom="15sp"
             android:background="@drawable/button_style"
             android:textColor="@color/black"
             android:layout_marginTop="10dp"
