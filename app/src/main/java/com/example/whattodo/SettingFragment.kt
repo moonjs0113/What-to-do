@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.CornerPathEffect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,9 @@ import com.example.whattodo.manager.Persistence.PersistenceService
 import com.skydoves.colorpickerview.ColorPickerDialog
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 import com.example.whattodo.manager.Persistence.SharedPreferencesManager.PriorityItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -33,6 +37,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class SettingFragment : Fragment() {
     lateinit var mainActivity: MainActivity
+    lateinit var binding: FragmentSettingBinding
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -50,17 +55,7 @@ class SettingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val binding = FragmentSettingBinding.inflate(inflater, container, false)
-        var colorList = PersistenceService.share.getColorArray()
-        binding.changeColor1.setBackgroundColor(Color.parseColor( "#" + colorList[0]))
-        binding.changeColor2.setBackgroundColor(Color.parseColor( "#" + colorList[1]))
-        binding.changeColor3.setBackgroundColor(Color.parseColor( "#" + colorList[2]))
-
-        val intent = Intent("color changed")
-        intent.putExtra("colorChanged1",colorList[0])
-        intent.putExtra("colorChanged2",colorList[1])
-        intent.putExtra("colorChanged3",colorList[2])
-        mainActivity.sendBroadCastInMainActivity(intent)
+        binding = FragmentSettingBinding.inflate(inflater, container, false)
 
         binding.changeColor1.setOnClickListener(
             object : OnClickListener{
@@ -140,15 +135,6 @@ class SettingFragment : Fragment() {
 
         }
 
-        val priorityValue = PersistenceService.share.getPriorityItem()
-        val intent2 = Intent("calc changed")
-        intent2.putExtra("spareTimeScalar",priorityValue.third)
-        intent2.putExtra("priorityScalar", priorityValue.second)
-        intent2.putExtra("ifLeftTimeChecked",(priorityValue.first == PriorityItem.TIME))
-        mainActivity.sendBroadCastInMainActivity(intent2)
-
-        binding.alramOk.isChecked = PersistenceService.share.getNotificationValue()
-        binding.alramNo.isChecked = !(PersistenceService.share.getNotificationValue())
         binding.alramOk.setOnCheckedChangeListener { _, b ->
             PersistenceService.share.setNotificationValue(b)
             if(b)
@@ -168,8 +154,58 @@ class SettingFragment : Fragment() {
             mainActivity.stopForegroundService()
         }
 
+        binding.deleteComplete.setOnClickListener {
+            showAlertDialog("완료된 일정 삭제","완료된 일정이 모두 삭제됩니다.\n삭제하시겠습니까?\n(이 작업은 되될릴 수 없습니다.)") {
+                CoroutineScope(Dispatchers.IO).launch {
+                    PersistenceService.share.deleteCompletedTodo()
+                    sendIntent()
+                }
+            }
+        }
+
+        binding.initializeButton.setOnClickListener {
+            showAlertDialog("앱 초기화","완료된 일정이 모두 삭제되며, 모든 값들이 초기값으로 전환됩니다.\n초기화 하시겠습니까?\n(이 작업은 되될릴 수 없습니다.)") {
+                CoroutineScope(Dispatchers.IO).launch {
+                    PersistenceService.share.clearAppData()
+                    fetchUI()
+                }
+            }
+
+        }
+
+        fetchUI()
+
         return binding.root
     }
+
+    fun fetchUI() {
+        var colorList = PersistenceService.share.getColorArray()
+        binding.changeColor1.setBackgroundColor(Color.parseColor( "#" + colorList[0]))
+        binding.changeColor2.setBackgroundColor(Color.parseColor( "#" + colorList[1]))
+        binding.changeColor3.setBackgroundColor(Color.parseColor( "#" + colorList[2]))
+
+        binding.alramOk.isChecked = PersistenceService.share.getNotificationValue()
+        binding.alramNo.isChecked = !(PersistenceService.share.getNotificationValue())
+
+        sendIntent()
+    }
+
+    fun sendIntent() {
+        var colorList = PersistenceService.share.getColorArray()
+        val intent = Intent("color changed")
+        intent.putExtra("colorChanged1",colorList[0])
+        intent.putExtra("colorChanged2",colorList[1])
+        intent.putExtra("colorChanged3",colorList[2])
+        mainActivity.sendBroadCastInMainActivity(intent)
+
+        val priorityValue = PersistenceService.share.getPriorityItem()
+        val intent2 = Intent("calc changed")
+        intent2.putExtra("spareTimeScalar",priorityValue.third)
+        intent2.putExtra("priorityScalar", priorityValue.second)
+        intent2.putExtra("ifLeftTimeChecked",(priorityValue.first == PriorityItem.TIME))
+        mainActivity.sendBroadCastInMainActivity(intent2)
+    }
+
 
     fun showColorPicker(binding: FragmentSettingBinding, index: Int, completeHandler: (String) -> Unit) {
         ColorPickerDialog.Builder(mainActivity)
@@ -196,6 +232,19 @@ class SettingFragment : Fragment() {
             .show()
     }
 
+    fun showAlertDialog(title: String, message: String, positiveHandler: () -> Unit) {
+        val alertDialogBuilder = AlertDialog.Builder(context)
+        alertDialogBuilder.setMessage(message)
+            .setTitle(title)
+            .setPositiveButton("OK") { _, _ ->
+                positiveHandler()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
 
     companion object {
 

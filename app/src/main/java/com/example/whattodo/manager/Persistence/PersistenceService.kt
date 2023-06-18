@@ -60,6 +60,26 @@ class PersistenceService {
         }
     }
 
+    fun deleteCompletedTodo() {
+        CoroutineScope(Dispatchers.IO).launch {
+            roomManager.deleteCompletedTodo()
+        }
+    }
+
+    // 초기화
+    fun clearAppData() {
+        SharedPreferencesManager.Color.values().indices.forEach {
+            sharedPreferencesManger.setColorCode(
+                it,
+                SharedPreferencesManager.Color.values()[it].code
+            )
+        }
+        sharedPreferencesManger.setNotification(true)
+        sharedPreferencesManger.setPriorityItem(PriorityItem.TIME,0,0)
+        roomManager.deleteAllTodo()
+    }
+
+
     /// Context에서 호출하여 테스트해볼 수 있습니다. 테스트 결과는 Logcat을 통해 확인할 수 있습니다.
     fun testRoomManager(context: Context) {
 //        roomManager.test(context)

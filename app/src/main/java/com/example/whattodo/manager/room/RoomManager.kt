@@ -37,6 +37,14 @@ class RoomManager {
         }
     }
 
+    fun deleteAllTodo() {
+        todoDB.toDoDAO().deleteAllTodo()
+    }
+
+    fun deleteCompletedTodo() {
+        todoDB.toDoDAO().deleteCompletedTodo()
+    }
+
     fun findTodoFromExplanation(keyword: String): ArrayList<ToDo> = todoDB.toDoDAO().findToDo(keyword) as ArrayList<ToDo>
 
     fun test(context: Context) {

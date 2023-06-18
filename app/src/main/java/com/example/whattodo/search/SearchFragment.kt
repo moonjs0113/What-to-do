@@ -50,23 +50,26 @@ class SearchFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mainActivity = context as MainActivity
-        CoroutineScope(Dispatchers.IO).launch {
-            currentList = PersistenceService.share.getAllTodo()
-            if (currentList.count() < 4) {
-                ToDo.previewData.forEach {
-                    currentList.add(it)
-                    PersistenceService.share.insertTodo(it)
-                }
-            }
-        }
+        // Test Code
+//        CoroutineScope(Dispatchers.IO).launch {
+//            currentList = PersistenceService.share.getAllTodo()
+//            if (currentList.count() < 4) {
+//                ToDo.previewData.forEach {
+//                    currentList.add(it)
+//                    PersistenceService.share.insertTodo(it)
+//                }
+//            }
+//        }
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if(intent != null)
                 {
+                    fetchTodoData()
                     if(intent.hasExtra("message")){
                         CoroutineScope(Dispatchers.IO).launch{
                             searchRecyclerAdapter.items = currentList
+
                             withContext(Dispatchers.Main)
                             {
                                 searchRecyclerAdapter.notifyDataSetChanged()
