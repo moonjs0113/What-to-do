@@ -194,6 +194,11 @@ class SettingFragment : Fragment() {
                     intent.putExtra("colorChanged3",colorList[2])
                     mainActivity.sendBroadCastInMainActivity(intent)
 
+                    binding.changeColor1.setBackgroundColor(Color.parseColor( "#" + colorList[0]))
+                    binding.changeColor2.setBackgroundColor(Color.parseColor( "#" + colorList[1]))
+                    binding.changeColor3.setBackgroundColor(Color.parseColor( "#" + colorList[2]))
+
+
                     val priorityValue = PersistenceService.share.getPriorityItem()
                     val intent2 = Intent("calc changed")
                     intent2.putExtra("spareTimeScalar",priorityValue.third)
@@ -204,6 +209,9 @@ class SettingFragment : Fragment() {
                     val intent3 = Intent("Todo added");
                     intent3.putExtra("message","dataChanged");
                     mainActivity.sendBroadCastInMainActivity(intent3)
+
+
+
                 }
             }
 
