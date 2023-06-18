@@ -287,7 +287,7 @@ class MyAdapter(var items: ArrayList<ToDo>)
         }else if(priority >= 0)
         {
             val priorityGap = priority
-            var hex = Integer.toHexString(((priorityGap / (10 - 0)) * 156 + 99).toInt())
+            var hex = Integer.toHexString(((priorityGap / (20 - 0)) * 156 + 99).toInt())
 
             if(hex.length == 1)
             {
