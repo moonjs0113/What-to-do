@@ -73,6 +73,27 @@ class MyAdapter(var items: ArrayList<ToDo>)
         notifyDataSetChanged()
     }
 
+    // 이걸 호출하면 리사이클러 뷰 안의 아이템들이 중요도 내림차순으로 정렬이 됩니다.
+    fun sortItemWithDescendingImportance()
+    {
+        val comparator: Comparator<ToDo> = object : Comparator<ToDo> {
+            override fun compare(o1: ToDo?, o2: ToDo?): Int {
+                return if(o1!!.importance - o2!!.importance > 0) {
+                    -1
+                }else if(o1!!.importance - o2!!.importance < 0) {
+                    1
+                }else {
+                    0
+                }
+            }
+
+        }
+
+        items.sortWith(comparator)
+
+        notifyDataSetChanged()
+    }
+
     fun sortItemwithDescendingDeadLine()
     {
         val comparator: Comparator<ToDo> = object : Comparator<ToDo> {

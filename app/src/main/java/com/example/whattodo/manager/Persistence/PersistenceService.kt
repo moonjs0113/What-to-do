@@ -4,6 +4,9 @@ import android.content.Context
 import com.example.whattodo.ToDo
 import com.example.whattodo.manager.room.RoomManager
 import com.example.whattodo.manager.Persistence.SharedPreferencesManager.PriorityItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PersistenceService {
     private var sharedPreferencesManger = SharedPreferencesManager()
@@ -40,15 +43,21 @@ class PersistenceService {
     fun getAllTodo(): ArrayList<ToDo> = roomManager.getAllToDo()
 
     fun insertTodo(toDo: ToDo) {
-        roomManager.insertToDo(toDo)
+        CoroutineScope(Dispatchers.IO).launch {
+            roomManager.insertToDo(toDo)
+        }
     }
 
     fun updateTodo(toDo: ToDo) {
-        roomManager.updateToDo(toDo)
+        CoroutineScope(Dispatchers.IO).launch {
+            roomManager.updateToDo(toDo)
+        }
     }
 
     fun deleteTodo(toDo: ToDo) {
-        roomManager.deleteToDo(toDo)
+        CoroutineScope(Dispatchers.IO).launch {
+            roomManager.deleteToDo(toDo)
+        }
     }
 
     /// Context에서 호출하여 테스트해볼 수 있습니다. 테스트 결과는 Logcat을 통해 확인할 수 있습니다.
