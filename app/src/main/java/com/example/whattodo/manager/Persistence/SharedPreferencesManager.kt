@@ -58,8 +58,8 @@ class SharedPreferencesManager {
 
     fun getPriorityItem(): Triple<PriorityItem, Int, Int> {
         val item = preferences.getString(priorityNameKey, "${PriorityItem.TIME}") ?: "${PriorityItem.TIME}"
-        val priorityValue = preferences.getInt(priorityValueKey, 1) ?: 1
-        val timeValue = preferences.getInt(timeValueKey, 1) ?: 1
+        val priorityValue = preferences.getInt(priorityValueKey, 10) ?: 10
+        val timeValue = preferences.getInt(timeValueKey, 10) ?: 10
         return Triple(PriorityItem.valueOf(item), priorityValue, timeValue)
     }
 

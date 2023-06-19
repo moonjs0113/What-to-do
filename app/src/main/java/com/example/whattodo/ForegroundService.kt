@@ -21,7 +21,7 @@ class ForegroundService() : Service() {
         // 알림 간격
         private const val INTERVAL_MILLIS = 60 * 1000L // 1분
         // 알림 대상이 되는 우선도 기준
-        private const val PRIORITY_CRITERIA = 50
+        private const val PRIORITY_CRITERIA = 40
     }
 
     private val notificationManager: NotificationManagerCompat by lazy {

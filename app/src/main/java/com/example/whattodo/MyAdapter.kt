@@ -189,7 +189,7 @@ class MyAdapter(var items: ArrayList<ToDo>)
             }
 
             val urgencyFactor = item.time_taken / remainingTime * 100
-            val priorityScore = urgencyFactor + item.importance * 5
+            val priorityScore = urgencyFactor + item.importance * 10
 
             return priorityScore
         }
@@ -264,36 +264,37 @@ class MyAdapter(var items: ArrayList<ToDo>)
                 hex = "FF"
             }else
             {
-                hex = Integer.toHexString(((priorityGap / (100 - 50)) * 156 + 100).toInt())
+                hex = Integer.toHexString(((priorityGap / (100 - 50)) * 156 + 99).toInt())
             }
 
             if(hex.length == 1)
             {
                 hex = "0$hex"
             }
-
+            Log.d("Unkwon Color", "#${hex}${hexColors[0]} " + " ${hex} " + " ${hexColors[0]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[0]}"))
-        }else if(priority > 10)
+        }else if(priority > 20)
         {
-            val priorityGap = priority - 10
-            var hex = Integer.toHexString(((priorityGap / (50 - 10)) * 156 + 100).toInt())
+            val priorityGap = priority - 20
+            var hex = Integer.toHexString(((priorityGap / (50 - 20)) * 156 + 99).toInt())
 
             if(hex.length == 1)
             {
                 hex = "0$hex"
             }
-
+            Log.d("Unkwon Color", "#${hex}${hexColors[1]} " + ((priorityGap / (50 - 20)) * 156 + 99).toInt().toString() + " ${hex} " + " ${hexColors[1]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[1]}"))
         }else if(priority >= 0)
         {
             val priorityGap = priority
-            var hex = Integer.toHexString(((priorityGap / (10 - 0)) * 156 + 100).toInt())
+            var hex = Integer.toHexString(((priorityGap / (20 - 0)) * 156 + 99).toInt())
 
             if(hex.length == 1)
             {
                 hex = "0$hex"
             }
 
+            Log.d("Unkwon Color", "#${hex}${hexColors[2]} " + " ${hex} " + " ${hexColors[2]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[2]}"))
 
         }else // 우선도가 음수 -> 마감기한 놓침
