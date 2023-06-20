@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 var newToDo = ToDo(todoInput.text.toString(), deadline.toString(), timeToSpendVal.toFloat(), importanceVal, 5f)
                 newToDo.id = idToAmend
-                println(newToDo)
+
                 // Room에 ToDo객체 저장
                 CoroutineScope(Dispatchers.IO).launch {
                     PersistenceService.share.registerContext(this@MainActivity)
@@ -182,6 +182,7 @@ class MainActivity : AppCompatActivity() {
                         isAmend = false
                         registerBtn.text = "등록"
                     } else {
+                        newToDo.id = 0
                         PersistenceService.share.insertTodo(newToDo)
                     }
                 }
