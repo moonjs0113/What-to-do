@@ -93,11 +93,11 @@ class SearchFragment : Fragment() {
 //                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
 //                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
                                         duration.toHours().toFloat()
-                                    } else {                -0.00001f
+                                    } else {                return -1.0f
 
                                     }
 
-                                    val urgencyFactor = item.time_taken / remainingTime * (spareTimeScalar * 10)
+                                    val urgencyFactor = 1 / (remainingTime - item.time_taken) * spareTimeScalar * 30
                                     val priorityScore = urgencyFactor + item.importance * priorityScalar
 
                                     return priorityScore
@@ -115,12 +115,12 @@ class SearchFragment : Fragment() {
 //                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
 //                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
                                         duration.toHours().toFloat()
-                                    } else {                -0.00001f
+                                    } else {                return -1.0f
 
                                     }
 
-                                    val urgencyFactor = item.time_taken / remainingTime * spareTimeScalar
-                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 3
+                                    val urgencyFactor = 1 / (remainingTime - item.time_taken) * spareTimeScalar
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 2
 
                                     return priorityScore
                                 }

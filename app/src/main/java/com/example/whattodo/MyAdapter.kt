@@ -1,7 +1,6 @@
 package com.example.whattodo
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -247,8 +246,6 @@ class MyAdapter(var items: ArrayList<ToDo>)
         //따라서  PriorityFragment의 calculatePriority 오버라이드 구현된 부분도 초 대신 일수를 받는것으로 다시 구현하였습니다.
         val priority : Float = items[position].priority
 
-        Log.d("우선도", " 설명 : " + items[position].explanation + "  우선도 : " + items[position].priority.toString())
-
         if(priority < 0) {
             holder.binding.deadLine.text = "마감 기한 초과"
         }
@@ -271,7 +268,6 @@ class MyAdapter(var items: ArrayList<ToDo>)
             {
                 hex = "0$hex"
             }
-            Log.d("Unkwon Color", "#${hex}${hexColors[0]} " + " ${hex} " + " ${hexColors[0]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[0]}"))
         }else if(priority > 20)
         {
@@ -282,7 +278,6 @@ class MyAdapter(var items: ArrayList<ToDo>)
             {
                 hex = "0$hex"
             }
-            Log.d("Unkwon Color", "#${hex}${hexColors[1]} " + ((priorityGap / (50 - 20)) * 156 + 99).toInt().toString() + " ${hex} " + " ${hexColors[1]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[1]}"))
         }else if(priority >= 0)
         {
@@ -294,7 +289,6 @@ class MyAdapter(var items: ArrayList<ToDo>)
                 hex = "0$hex"
             }
 
-            Log.d("Unkwon Color", "#${hex}${hexColors[2]} " + " ${hex} " + " ${hexColors[2]} ")
             holder.binding.priorityImageView.setColorFilter(Color.parseColor("#${hex}${hexColors[2]}"))
 
         }else // 우선도가 음수 -> 마감기한 놓침

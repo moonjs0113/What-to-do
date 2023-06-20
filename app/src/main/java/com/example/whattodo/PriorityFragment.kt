@@ -54,6 +54,7 @@ class PriorityFragment : Fragment() {
                         println("broadcast complete")
                         CoroutineScope(Dispatchers.IO).launch{
                             adapter.items = PersistenceService.share.getAllTodo()
+                            Log.d("PriorityFragment", adapter.items.size.toString())
                             withContext(Dispatchers.Main)
                             {
                                 adapter.notifyDataSetChanged()
@@ -88,11 +89,11 @@ class PriorityFragment : Fragment() {
 //                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
 //                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
                                         duration.toHours().toFloat()
-                                    } else {                -0.00001f
+                                    } else {                return -1.0f
 
                                     }
 
-                                    val urgencyFactor = item.time_taken / remainingTime * (spareTimeScalar * 10)
+                                    val urgencyFactor = 1 / (remainingTime - item.time_taken) * spareTimeScalar * 30
                                     val priorityScore = urgencyFactor + item.importance * priorityScalar
 
                                     return priorityScore
@@ -110,12 +111,12 @@ class PriorityFragment : Fragment() {
 //                val diffHour = (item.deadLine.toLocalDateTime().atZone(ZoneId.systemDefault()).toEpochSecond()/360
 //                        - currentTime.atZone(ZoneId.systemDefault()).toEpochSecond()/360)
                                         duration.toHours().toFloat()
-                                    } else {                -0.00001f
+                                    } else {                return -1.0f
 
                                     }
 
-                                    val urgencyFactor = item.time_taken / remainingTime * spareTimeScalar
-                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 3
+                                    val urgencyFactor = 1 / (remainingTime - item.time_taken) * spareTimeScalar
+                                    val priorityScore = urgencyFactor + item.importance * priorityScalar * 2
 
                                     return priorityScore
                                 }
